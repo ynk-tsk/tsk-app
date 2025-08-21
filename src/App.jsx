@@ -1,49 +1,26 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import Chart from 'chart.js/auto';
 
-/**
- * TSK — Plateforme Sportive Écosystème (React)
- * Rôle: Chef de produit — expérience accessible pour l'écosystème sportif (U11–U21)
- * Ligne UX: Découvrir (Joueur/Coach/Orga) → Planifier → Participer → Progresser (Classements)
- * Positionnement: Plateforme centrale et globale pour les opportunités sportives (tournois, camps, académies, coachs, lieux).
- * Internationalisation: fr, es, de.
- *
- * MVP v2 Améliorations:
- * - Injection de preuve sociale (logos, témoignages) pour renforcer la confiance.
- * - Message principal affiné pour être plus orienté vers l'action et les bénéfices.
- * - Moteur de recherche amélioré avec recherche par mot-clé et plage de dates.
- * - Liens cliquables dans les classements pour suggérer des profils détaillés.
- */
-
+// ... (Le reste du code, comme les dictionnaires et les données, reste le même) ...
 // --- Dictionnaire de textes (i18n) ---
 const copy = (lang) => {
   const dict = {
     fr: {
       nav_search: 'Rechercher', nav_rankings: 'Classements', nav_players: 'Pour les Joueurs', nav_coaches: 'Pour les Coachs', nav_organizers: 'Pour les Organisateurs', nav_concierge: 'Conciergerie',
-      
       h1_top: 'Trouvez, Comparez, Progressez.',
       h1_highlight: 'Votre Avenir Sportif Commence Ici.',
       h1_sub: 'La plateforme qui transforme votre potentiel en performance. Accédez à des milliers de tournois, camps, et académies. Évaluez la compétition avec nos classements exclusifs.',
-      
       cta_primary: 'Trouver une opportunité',
       cta_secondary: 'Je suis un organisateur',
-      
       social_proof_title: 'Ils nous font confiance pour façonner l\'avenir du sport',
-
       search_title: 'Trouvez votre prochaine opportunité',
       search_subtitle: 'Utilisez nos filtres pour découvrir l\'expérience parfaite pour votre développement.',
       search_keyword: 'Mot-clé (nom, ville...)',
-      
       filter_type: 'Type d\'opportunité', filter_sport: 'Sport', filter_level: 'Niveau', filter_country: 'Pays', filter_date_start: 'Date de début', filter_date_end: 'Date de fin', filter_gender: 'Genre', filter_category: 'Catégorie d\'âge',
-      
       type_all: 'Toutes', type_tournament: 'Tournoi', type_camp: 'Camp', type_academy: 'Académie', type_coach: 'Coach', type_venue: 'Lieu',
-      
       view_list: 'Liste', view_map: 'Carte',
-      
       gender_all: 'Tous', gender_male: 'Masculin', gender_female: 'Féminin', gender_mixed: 'Mixte',
-      
       no_results: 'Aucune opportunité ne correspond à vos critères. Essayez d\'ajuster vos filtres.',
-      
       testimonials_title: 'Ce que notre communauté en dit',
       testimonials_player_quote: '"Grâce à TSK, j\'ai trouvé un camp d\'été en Espagne qui a complètement changé mon jeu. Les classements m\'ont aidé à choisir un événement avec le bon niveau de compétition."',
       testimonials_player_name: 'Lucas, Joueur U17',
@@ -51,45 +28,37 @@ const copy = (lang) => {
       testimonials_coach_name: 'Coach Dubois, Club de Basket',
       testimonials_organizer_quote: '"Inscrire notre tournoi sur TSK nous a donné une visibilité internationale que nous n\'aurions jamais eue autrement. La gestion des inscriptions est simple et efficace. Nous avons eu 20% de participants en plus cette année."',
       testimonials_organizer_name: 'Marie, Organisatrice Paris Youth Cup',
-
       rankings_title: 'Classements TSK',
       rankings_subtitle: 'Suivez la progression, évaluez la compétition et identifiez les meilleures opportunités.',
       rankings_tab_teams: 'Classement des Équipes', rankings_tab_tournaments: 'Classement des Tournois',
       rankings_col_rank: 'Rang', rankings_col_team: 'Équipe', rankings_col_category: 'Catégorie', rankings_col_played: 'Joués', rankings_col_elo: 'Classement TSK',
       rankings_col_tournament: 'Tournoi', rankings_col_prestige: 'Score Prestige', rankings_col_top_teams: 'Équipes du Top 20',
-      
       players_title: 'Pour les Joueurs',
       players_subtitle: 'Votre talent est unique. Votre prochaine étape vous attend.',
       players_s1_title: 'Rejoignez une Travel Team', players_s1_text: 'Inscrivez-vous en solo ou en petit groupe pour rejoindre des équipes compétitives formées pour des tournois spécifiques. Une opportunité unique de voyager et de vous mesurer aux meilleurs.',
       players_s2_title: 'Intégrez un Camp de Perfectionnement', players_s2_text: 'Trouvez des camps d\'été ou des stages intensifs pour développer vos compétences avec des coachs de renom.',
       players_cta: 'Découvrir les opportunités',
       player_testimonial_short: '"J\'ai trouvé le camp parfait en quelques clics. Une expérience incroyable!"',
-
       coaches_title: 'Pour les Coachs',
       coaches_subtitle: 'De la recherche à la stratégie. Gagnez un avantage compétitif.',
       coaches_s1_title: 'Alertes Personnalisées', coaches_s1_text: 'Enregistrez vos filtres de recherche et recevez des notifications dès qu\'une nouvelle opportunité correspondant à vos critères est ajoutée.',
       coaches_s2_title: 'Analyse de la Compétition', coaches_s2_text: 'Utilisez nos classements et les résultats passés pour préparer vos équipes et définir votre stratégie pour la saison.',
       coaches_cta: 'Optimiser ma saison',
       coach_testimonial_short: '"Les alertes personnalisées sont un outil puissant pour ne rater aucune opportunité."',
-
       organizers_title: 'Pour les Organisateurs',
       organizers_subtitle: 'Donnez à votre événement la visibilité qu\'il mérite. Rejoignez notre plateforme globale.',
       organizers_standard_title: 'Inscription Standard', organizers_standard_subtitle: 'Gratuit',
       organizers_standard_feature1: 'Visibilité auprès d\'une audience mondiale', organizers_standard_feature2: 'Gestion simple des inscriptions',
       organizers_standard_cta: 'Inscrire votre événement',
       organizer_testimonial_short: '"La visibilité obtenue via TSK a dépassé toutes nos attentes."',
-
       concierge_section_title: 'Conciergerie TSK', concierge_section_subtitle: 'L\'excellence sur-mesure pour les joueurs, les coachs et les organisateurs.',
       concierge_for_players_title: 'Pour les Joueurs & Familles', concierge_for_players_text: 'Concentrez-vous sur la performance, nous gérons la logistique. Voyage, hébergement, et services sur place pour une expérience sans stress.',
       concierge_for_coaches_title: 'Pour les Coachs & Clubs', concierge_for_coaches_text: 'Simplifiez l\'organisation de vos déplacements. Nous proposons des solutions de groupe pour le transport, l\'hébergement et la planification.',
       concierge_for_organizers_title: 'Pour les Organisateurs', concierge_for_organizers_text: 'Sublimez votre événement. De la production vidéo à la gestion des réseaux sociaux, nos services premium maximisent votre impact.',
       concierge_cta: 'Demander un entretien confidentiel',
-      
       roadmap_title: 'Notre Feuille de Route pour la Communauté', roadmap_subtitle: 'Nous faisons évoluer constamment la plateforme avec des fonctionnalités qui vous servent.',
-      
       footer_text: '© 2025 TSK — Le sport pour tous, simplifié.',
     },
-    // English, Spanish, and German translations would follow a similar, expanded structure.
   };
   return dict[lang] || dict['fr'];
 };
@@ -171,7 +140,8 @@ const Header = ({ T, lang, setLang }) => (
   <header className="sticky top-0 z-40 w-full backdrop-blur-sm border-b border-slate-200 bg-white/80">
     <div className="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
       <div className="flex items-center gap-3">
-        <img src="logo.jpg" alt="TSK Logo" className="h-10 w-10 rounded-lg" onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/40x40/f97316/white?text=TSK'; }}/>
+        {/* FIX: Corrected image path to be absolute from the public folder */}
+        <img src="/logo.jpg" alt="TSK Logo" className="h-10 w-10 rounded-lg" onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/40x40/f97316/white?text=TSK'; }}/>
         <div className="font-semibold text-slate-800">TSK Sport</div>
       </div>
       <nav className="hidden md:flex items-center gap-1">
@@ -190,7 +160,8 @@ const Header = ({ T, lang, setLang }) => (
 const Hero = ({ T }) => (
   <section className="relative text-center py-20 md:py-32 overflow-hidden">
     <div className="absolute inset-0">
-        <img src="hero-background.jpg" alt="Young athlete focused before a competition" className="w-full h-full object-cover" onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/1920x1080/1e293b/f8fafc?text=Focus'; }}/>
+        {/* FIX: Corrected image path */}
+        <img src="/hero-background.jpg" alt="Young athlete focused before a competition" className="w-full h-full object-cover" onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/1920x1080/1e293b/f8fafc?text=Focus'; }}/>
         <div className="absolute inset-0 bg-black/50"></div>
     </div>
     <div className="relative mx-auto max-w-4xl px-4">
@@ -570,7 +541,8 @@ const ForOrganizers = ({ T }) => (
                     </div>
                 </div>
                 <div className="relative h-80 rounded-xl overflow-hidden">
-                    <img src="organizers-background.jpg" alt="Vue aérienne d'un tournoi de sport" className="w-full h-full object-cover" onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/800x600/f97316/white?text=Event'; }}/>
+                    {/* FIX: Corrected image path */}
+                    <img src="/organizers-background.jpg" alt="Vue aérienne d'un tournoi de sport" className="w-full h-full object-cover" onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/800x600/f97316/white?text=Event'; }}/>
                 </div>
             </div>
         </div>
@@ -580,7 +552,8 @@ const ForOrganizers = ({ T }) => (
 const Concierge = ({ T }) => (
     <section id="concierge" className="py-20 bg-slate-900 text-white relative overflow-hidden">
         <div className="absolute inset-0">
-            <img src="concierge-background.jpg" className="w-full h-full object-cover opacity-20" alt="Planning desk" onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/1920x1080/1e293b/f8fafc?text=Strategy'; }}/>
+            {/* FIX: Corrected image path */}
+            <img src="/concierge-background.jpg" className="w-full h-full object-cover opacity-20" alt="Planning desk" onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/1920x1080/1e293b/f8fafc?text=Strategy'; }}/>
         </div>
         <div className="relative mx-auto max-w-7xl px-4 text-center">
             <h2 className="text-4xl font-bold" style={{ fontFamily: "'Playfair Display', serif" }}>{T.concierge_section_title}</h2>
@@ -611,7 +584,13 @@ const Roadmap = ({ T }) => {
   const chartInstance = useRef(null);
 
   useEffect(() => {
-    if (chartInstance.current) chartInstance.current.destroy();
+    if (!chartRef.current) {
+        return;
+    }
+    if (chartInstance.current) {
+        chartInstance.current.destroy();
+    }
+    
     const ctx = chartRef.current.getContext('2d');
     const roadmapData = [
         { task: 'Enrichissement Contenu', pillar: 'Intelligence', start: 0, end: 3 },
@@ -644,7 +623,12 @@ const Roadmap = ({ T }) => {
         plugins: { legend: { display: false } }
       }
     });
-    return () => chartInstance.current.destroy();
+    
+    return () => {
+        if(chartInstance.current) {
+            chartInstance.current.destroy();
+        }
+    };
   }, []);
 
   return (
