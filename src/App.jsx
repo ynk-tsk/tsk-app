@@ -896,4 +896,5 @@ export default function App() {
       </main>
       <Footer T={T} />
     </div>
-  )
+  );
+}
