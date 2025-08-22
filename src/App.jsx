@@ -6,7 +6,7 @@ const copy = (lang) => {
   const dict = {
     fr: {
       // --- Navigation ---
-      nav_home: 'Accueil', nav_search: 'Rechercher', nav_rankings: 'Classements', nav_players: 'Pour les Joueurs', nav_coaches: 'Pour les Coachs', nav_organizers: 'Pour les Organisateurs', nav_concierge: 'Conciergerie', nav_contact: 'Contact',
+      nav_home: 'Accueil', nav_for_who: 'Pour...', nav_players: 'Les Joueurs', nav_coaches: 'Les Coachs', nav_organizers: 'Les Organisateurs', nav_contact: 'Contact',
       nav_login: 'Connexion', nav_signup: 'Inscription', nav_dashboard: 'Tableau de Bord', nav_logout: 'Déconnexion',
 
       // --- Hero Section ---
@@ -802,7 +802,29 @@ const HomePage = ({ T }) => (
 );
 
 // --- COMPOSANT HEADER MIS À JOUR ---
-const Header = ({ T, lang, setLang, navigateTo, user, onLogout }) => {
+const Header = ({ T, lang, setLang, navigateTo, currentPage, user, onLogout }) => {
+  const [isDropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  const handleScrollTo = (id) => {
+    navigateTo('home');
+    // We need to wait for the home page to render before scrolling
+    setTimeout(() => {
+      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+    setDropdownOpen(false);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [dropdownRef]);
+
   const NavBtn = ({ page, children }) => (
     <button onClick={() => navigateTo(page)} className="px-3 py-2 rounded-md text-sm font-medium text-slate-700 hover:bg-slate-100">
       {children}
@@ -818,6 +840,23 @@ const Header = ({ T, lang, setLang, navigateTo, user, onLogout }) => {
         </div>
         <nav className="hidden md:flex items-center gap-1">
           <NavBtn page="home">{T.nav_home}</NavBtn>
+          {currentPage === 'home' && (
+            <div className="relative" ref={dropdownRef}>
+              <button onClick={() => setDropdownOpen(!isDropdownOpen)} className="flex items-center gap-1 px-3 py-2 rounded-md text-sm font-medium text-slate-700 hover:bg-slate-100">
+                {T.nav_for_who}
+                <svg className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+              </button>
+              {isDropdownOpen && (
+                <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-50">
+                  <div className="py-1">
+                    <button onClick={() => handleScrollTo('players')} className="block w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">{T.nav_players}</button>
+                    <button onClick={() => handleScrollTo('coaches')} className="block w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">{T.nav_coaches}</button>
+                    <button onClick={() => handleScrollTo('organizers')} className="block w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">{T.nav_organizers}</button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
           <NavBtn page="contact">{T.nav_contact}</NavBtn>
         </nav>
         <div className="flex items-center gap-2">
@@ -845,7 +884,7 @@ const Footer = ({ T }) => (
       <div>{T.footer_text}</div>
       <div className="flex items-center gap-4">
         <a href="#" className="hover:text-slate-800">Mentions légales</a>
-        <button onClick={() => window.scrollTo(0, 0)} className="hover:text-slate-800">Contact</button>
+        <a href="#" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-slate-800">Haut de page</a>
       </div>
     </div>
   </footer>
@@ -860,6 +899,7 @@ export default function App() {
   
   useEffect(() => {
     document.documentElement.lang = lang;
+    if (currentPage === 'home') return; // Don't scroll to top if we are just scrolling on the home page
     window.scrollTo(0, 0);
   }, [lang, currentPage]);
 
@@ -890,7 +930,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Header T={T} lang={lang} setLang={setLang} navigateTo={setCurrentPage} user={user} onLogout={handleLogout} />
+      <Header T={T} lang={lang} setLang={setLang} navigateTo={setCurrentPage} currentPage={currentPage} user={user} onLogout={handleLogout} />
       <main>
         {renderPage()}
       </main>
