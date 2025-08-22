@@ -5,31 +5,18 @@ import Chart from 'chart.js/auto';
 const copy = (lang) => {
   const dict = {
     fr: {
-      // --- Navigation ---
-      nav_home: 'Accueil', nav_for_who: 'Pour...', nav_players: 'Les Joueurs', nav_coaches: 'Les Coachs', nav_organizers: 'Les Organisateurs', nav_contact: 'Contact',
+      nav_home: 'Accueil', nav_opportunity: 'Trouver une opportunité', nav_for_who: 'Pour...', nav_players: 'Les Joueurs', nav_coaches: 'Les Coachs', nav_organizers: 'Les Organisateurs', nav_contact: 'Contact', nav_tournaments: 'Tournois', nav_camps: 'Camps', nav_academies: 'Académies', nav_travel_teams: 'Travel Teams',
       nav_login: 'Connexion', nav_signup: 'Inscription', nav_dashboard: 'Tableau de Bord', nav_logout: 'Déconnexion',
-
-      // --- Hero Section ---
-      h1_top: 'Trouvez, Comparez, Progressez.',
-      h1_highlight: 'Votre Avenir Sportif Commence Ici.',
-      h1_sub: 'La plateforme qui transforme votre potentiel en performance. Accédez à des milliers de tournois, camps, et académies. Évaluez la compétition avec nos classements exclusifs.',
-      cta_primary: 'Trouver une opportunité',
-      cta_secondary: 'Je suis un organisateur',
-      
-      // --- Social Proof ---
+      h1_top: 'Trouvez, Comparez, Progressez.', h1_highlight: 'Votre Avenir Sportif Commence Ici.', h1_sub: 'La plateforme qui transforme votre potentiel en performance. Accédez à des milliers de tournois, camps, et académies. Évaluez la compétition avec nos classements exclusifs.',
+      cta_primary: 'Trouver une opportunité', cta_secondary: 'Je suis un organisateur',
       social_proof_title: 'Ils nous font confiance pour façonner l\'avenir du sport',
-
-      // --- Search Section ---
-      search_title: 'Trouvez votre prochaine opportunité',
-      search_subtitle: 'Utilisez nos filtres pour découvrir l\'expérience parfaite pour votre développement.',
+      search_title: 'Trouvez votre prochaine opportunité', search_subtitle: 'Utilisez nos filtres pour découvrir l\'expérience parfaite pour votre développement.',
       search_keyword: 'Mot-clé (nom, ville...)',
       filter_type: 'Type d\'opportunité', filter_sport: 'Sport', filter_level: 'Niveau', filter_country: 'Pays', filter_date_start: 'Date de début', filter_date_end: 'Date de fin', filter_gender: 'Genre', filter_category: 'Catégorie d\'âge',
       type_all: 'Toutes', type_tournament: 'Tournoi', type_camp: 'Camp', type_academy: 'Académie', type_coach: 'Coach', type_venue: 'Lieu',
       view_list: 'Liste', view_map: 'Carte',
       gender_all: 'Tous', gender_male: 'Masculin', gender_female: 'Féminin', gender_mixed: 'Mixte',
       no_results: 'Aucune opportunité ne correspond à vos critères. Essayez d\'ajuster vos filtres.',
-      
-      // --- Testimonials ---
       testimonials_title: 'Ce que notre communauté en dit',
       testimonials_player_quote: '"Grâce à TSK, j\'ai trouvé un camp d\'été en Espagne qui a complètement changé mon jeu. Les classements m\'ont aidé à choisir un événement avec le bon niveau de compétition."',
       testimonials_player_name: 'Lucas, Joueur U17',
@@ -37,15 +24,11 @@ const copy = (lang) => {
       testimonials_coach_name: 'Coach Dubois, Club de Basket',
       testimonials_organizer_quote: '"Inscrire notre tournoi sur TSK nous a donné une visibilité internationale que nous n\'aurions jamais eue autrement. La gestion des inscriptions est simple et efficace. Nous avons eu 20% de participants en plus cette année."',
       testimonials_organizer_name: 'Marie, Organisatrice Paris Youth Cup',
-
-      // --- Rankings ---
       rankings_title: 'Classements TSK',
       rankings_subtitle: 'Suivez la progression, évaluez la compétition et identifiez les meilleures opportunités.',
       rankings_tab_teams: 'Classement des Équipes', rankings_tab_tournaments: 'Classement des Tournois',
       rankings_col_rank: 'Rang', rankings_col_team: 'Équipe', rankings_col_category: 'Catégorie', rankings_col_played: 'Joués', rankings_col_elo: 'Classement TSK',
       rankings_col_tournament: 'Tournoi', rankings_col_prestige: 'Score Prestige', rankings_col_top_teams: 'Équipes du Top 20',
-      
-      // --- Personas ---
       players_title: 'Pour les Joueurs',
       players_subtitle: 'Votre talent est unique. Votre prochaine étape vous attend.',
       players_s1_title: 'Rejoignez une Travel Team', players_s1_text: 'Inscrivez-vous en solo ou en petit groupe pour rejoindre des équipes compétitives formées pour des tournois spécifiques. Une opportunité unique de voyager et de vous mesurer aux meilleurs.',
@@ -59,8 +42,6 @@ const copy = (lang) => {
       organizers_title: 'Pour les Organisateurs',
       organizers_subtitle: 'Donnez à votre événement la visibilité qu\'il mérite. Rejoignez notre plateforme globale.',
       organizers_standard_cta: 'Inscrire votre événement',
-
-      // --- Concierge ---
       concierge_section_title: 'Conciergerie TSK',
       concierge_section_subtitle: 'L\'excellence sur-mesure pour les joueurs, les coachs et les organisateurs.',
       concierge_for_players_title: 'Pour les Joueurs & Familles',
@@ -70,13 +51,9 @@ const copy = (lang) => {
       concierge_for_organizers_title: 'Pour les Organisateurs',
       concierge_for_organizers_text: 'Sublimez votre événement. De la production vidéo à la gestion des réseaux sociaux, nos services premium maximisent votre impact.',
       concierge_cta: 'Demander un entretien confidentiel',
-      
-      // --- Roadmap & Footer ---
       roadmap_title: 'Notre Feuille de Route pour la Communauté',
       roadmap_subtitle: 'Nous faisons évoluer constamment la plateforme avec des fonctionnalités qui vous servent.',
       footer_text: '© 2025 TSK — Le sport pour tous, simplifié.',
-      
-      // --- Contact Page ---
       contact_title: 'Contactez-nous',
       contact_subtitle: 'Une question, une suggestion, ou besoin d\'aide ? Notre équipe est là pour vous répondre.',
       contact_reason_player: 'Je suis un joueur / parent',
@@ -90,8 +67,6 @@ const copy = (lang) => {
       contact_message: 'Votre message',
       contact_send: 'Envoyer le message',
       contact_success: 'Merci ! Votre message a bien été envoyé. Nous vous répondrons dans les plus brefs délais.',
-      
-      // --- Auth Page ---
       auth_login_title: 'Se connecter à votre compte',
       auth_signup_title: 'Créer un compte TSK',
       auth_email: 'Adresse email',
@@ -100,8 +75,6 @@ const copy = (lang) => {
       auth_signup_btn: 'Créer mon compte',
       auth_no_account: 'Pas encore de compte ?',
       auth_has_account: 'Déjà un compte ?',
-
-      // --- Dashboard & Propose ---
       dashboard_welcome: 'Bienvenue sur votre tableau de bord',
       dashboard_propose_cta: 'Proposer une opportunité',
       propose_title: 'Proposer une nouvelle opportunité',
@@ -110,6 +83,33 @@ const copy = (lang) => {
       propose_submit: 'Soumettre pour validation',
       propose_success: 'Merci ! Votre opportunité a été soumise et sera examinée par notre équipe.',
     },
+    en: {
+      nav_home: 'Home', nav_opportunity: 'Find an Opportunity', nav_for_who: 'For...', nav_players: 'Players', nav_coaches: 'Coaches', nav_organizers: 'Organizers', nav_contact: 'Contact', nav_tournaments: 'Tournaments', nav_camps: 'Camps', nav_academies: 'Academies', nav_travel_teams: 'Travel Teams',
+      nav_login: 'Login', nav_signup: 'Sign Up', nav_dashboard: 'Dashboard', nav_logout: 'Logout',
+      h1_top: 'Find, Compare, Progress.', h1_highlight: 'Your Athletic Future Starts Here.', h1_sub: 'The global platform that connects talent with the best opportunities: tournaments, camps, academies, and coaches.',
+      cta_primary: 'Find an opportunity', cta_secondary: 'I am an organizer',
+      social_proof_title: 'Trusted by them to shape the future of sports',
+      search_title: 'Find Your Next Opportunity', search_subtitle: 'Use our filters to discover the perfect experience for your development.',
+      // ... (toutes les autres traductions anglaises)
+    },
+    es: {
+      nav_home: 'Inicio', nav_opportunity: 'Encontrar Oportunidad', nav_for_who: 'Para...', nav_players: 'Jugadores', nav_coaches: 'Entrenadores', nav_organizers: 'Organizadores', nav_contact: 'Contacto', nav_tournaments: 'Torneos', nav_camps: 'Campamentos', nav_academies: 'Academias', nav_travel_teams: 'Equipos de Viaje',
+      nav_login: 'Iniciar Sesión', nav_signup: 'Registrarse', nav_dashboard: 'Panel', nav_logout: 'Cerrar Sesión',
+      h1_top: 'Encuentra, Compara, Progresa.', h1_highlight: 'Tu Futuro Deportivo Comienza Aquí.', h1_sub: 'La plataforma global que conecta talentos con las mejores oportunidades: torneos, campamentos, academias y entrenadores.',
+      cta_primary: 'Encontrar una oportunidad', cta_secondary: 'Soy un organizador',
+      social_proof_title: 'Confían en nosotros para dar forma al futuro del deporte',
+      search_title: 'Encuentra tu Próxima Oportunidad', search_subtitle: 'Usa nuestros filtros para descubrir la experiencia perfecta para tu desarrollo.',
+      // ... (toutes les autres traductions espagnoles)
+    },
+    de: {
+      nav_home: 'Startseite', nav_opportunity: 'Gelegenheit finden', nav_for_who: 'Für...', nav_players: 'Spieler', nav_coaches: 'Trainer', nav_organizers: 'Veranstalter', nav_contact: 'Kontakt', nav_tournaments: 'Turniere', nav_camps: 'Camps', nav_academies: 'Akademien', nav_travel_teams: 'Reiseteams',
+      nav_login: 'Anmelden', nav_signup: 'Registrieren', nav_dashboard: 'Dashboard', nav_logout: 'Abmelden',
+      h1_top: 'Finden, Vergleichen, Fortschritte machen.', h1_highlight: 'Deine sportliche Zukunft beginnt hier.', h1_sub: 'Die globale Plattform, die Talente mit den besten Möglichkeiten verbindet: Turniere, Camps, Akademien und Trainer.',
+      cta_primary: 'Eine Gelegenheit finden', cta_secondary: 'Ich bin ein Veranstalter',
+      social_proof_title: 'Sie vertrauen uns, die Zukunft des Sports zu gestalten',
+      search_title: 'Finde deine nächste Gelegenheit', search_subtitle: 'Nutze unsere Filter, um die perfekte Erfahrung für deine Entwicklung zu entdecken.',
+      // ... (toutes les autres traductions allemandes)
+    }
   };
   return dict[lang] || dict['fr'];
 };
@@ -149,10 +149,28 @@ const CardBase = ({ children, className = '' }) => <div className={`rounded-xl b
 
 const ContactPage = ({ T }) => {
   const [submitted, setSubmitted] = useState(false);
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setSubmitted(true);
-  };
+  const formRef = useRef();
+
+  useEffect(() => {
+    const form = formRef.current;
+    if (!form) return;
+
+    const handleSubmit = (event) => {
+      event.preventDefault();
+      const formData = new FormData(form);
+      fetch("/", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams(formData).toString(),
+      })
+      .then(() => setSubmitted(true))
+      .catch((error) => alert(error));
+    };
+
+    form.addEventListener("submit", handleSubmit);
+    return () => form.removeEventListener("submit", handleSubmit);
+  }, []);
+
 
   return (
     <section id="contact" className="py-20 bg-slate-50">
@@ -166,10 +184,17 @@ const ContactPage = ({ T }) => {
           </CardBase>
         ) : (
           <CardBase className="mt-12 p-8 text-left">
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form ref={formRef} name="contact" data-netlify="true" data-netlify-honeypot="bot-field" data-netlify-recaptcha="true" className="space-y-6">
+              <input type="hidden" name="form-name" value="contact" />
+              <p className="hidden">
+                <label>
+                  Ne remplissez pas ce champ si vous êtes humain: <input name="bot-field" />
+                </label>
+              </p>
+              
               <div>
                 <label className="block text-sm font-medium text-slate-700">{T.contact_subject}</label>
-                <select className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-orange-500 focus:ring-orange-500">
+                <select name="subject" className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-orange-500 focus:ring-orange-500">
                   <option>{T.contact_reason_player}</option>
                   <option>{T.contact_reason_coach}</option>
                   <option>{T.contact_reason_organizer}</option>
@@ -180,17 +205,18 @@ const ContactPage = ({ T }) => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-slate-700">{T.contact_name}</label>
-                  <input type="text" required className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-orange-500 focus:ring-orange-500" />
+                  <input type="text" name="name" required className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-orange-500 focus:ring-orange-500" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700">{T.contact_email}</label>
-                  <input type="email" required className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-orange-500 focus:ring-orange-500" />
+                  <input type="email" name="email" required className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-orange-500 focus:ring-orange-500" />
                 </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700">{T.contact_message}</label>
-                <textarea rows="4" required className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"></textarea>
+                <textarea name="message" rows="4" required className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"></textarea>
               </div>
+              <div data-netlify-recaptcha="true"></div>
               <div className="text-center">
                 <PrimaryBtn type="submit">{T.contact_send}</PrimaryBtn>
               </div>
@@ -204,9 +230,10 @@ const ContactPage = ({ T }) => {
 
 const AuthPage = ({ T, onLogin, navigateTo }) => {
   const [isLogin, setIsLogin] = useState(true);
+  
   const handleSubmit = (e) => {
     e.preventDefault();
-    onLogin({ email: e.target.email.value }); // Mock login
+    onLogin({ email: e.target.email.value });
     navigateTo('dashboard');
   };
 
@@ -801,38 +828,47 @@ const HomePage = ({ T }) => (
   </>
 );
 
-// --- COMPOSANT HEADER MIS À JOUR ---
+// --- COMPOSANT HEADER AMÉLIORÉ ---
 const Header = ({ T, lang, setLang, navigateTo, currentPage, user, onLogout }) => {
-  const [isDropdownOpen, setDropdownOpen] = useState(false);
-  const dropdownRef = useRef(null);
-
+  const [opportunityDropdown, setOpportunityDropdown] = useState(false);
+  const [personaDropdown, setPersonaDropdown] = useState(false);
+  const opportunityRef = useRef(null);
+  const personaRef = useRef(null);
+  
   const handleScrollTo = (id) => {
     navigateTo('home');
-    // We need to wait for the home page to render before scrolling
     setTimeout(() => {
       document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
     }, 100);
-    setDropdownOpen(false);
+    setPersonaDropdown(false);
   };
 
+  const handleSearchAndFilter = (type) => {
+    navigateTo('home');
+    setTimeout(() => {
+      document.getElementById('search')?.scrollIntoView({ behavior: 'smooth' });
+      // This part is a placeholder for actual filtering logic
+      // In a real app, you would pass the 'type' to the Search component
+      // and have it set its initial filter state.
+      console.log(`Filtering for: ${type}`);
+    }, 100);
+    setOpportunityDropdown(false);
+  };
+
+  // Close dropdowns on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setDropdownOpen(false);
-      }
+      if (opportunityRef.current && !opportunityRef.current.contains(event.target)) setOpportunityDropdown(false);
+      if (personaRef.current && !personaRef.current.contains(event.target)) setPersonaDropdown(false);
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [dropdownRef]);
+  }, []);
 
-  const NavBtn = ({ page, children }) => (
-    <button onClick={() => navigateTo(page)} className="px-3 py-2 rounded-md text-sm font-medium text-slate-700 hover:bg-slate-100">
-      {children}
-    </button>
-  );
+  const NavBtn = ({ page, children }) => <button onClick={() => navigateTo(page)} className="px-3 py-2 rounded-md text-sm font-medium text-slate-700 hover:bg-slate-100">{children}</button>;
 
   return (
-    <header className="sticky top-0 z-40 w-full backdrop-blur-sm border-b border-slate-200 bg-white/80">
+    <header className="sticky top-0 z-50 w-full backdrop-blur-sm border-b border-slate-200 bg-white/80">
       <div className="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <img src="/logo.png" alt="TSK Logo" className="h-10 w-10 rounded-lg cursor-pointer" onClick={() => navigateTo('home')} onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/40x40/f97316/white?text=TSK'; }}/>
@@ -840,13 +876,32 @@ const Header = ({ T, lang, setLang, navigateTo, currentPage, user, onLogout }) =
         </div>
         <nav className="hidden md:flex items-center gap-1">
           <NavBtn page="home">{T.nav_home}</NavBtn>
+          
+          {/* --- NOUVEAU MENU DÉROULANT "TROUVER UNE OPPORTUNITÉ" --- */}
+          <div className="relative" ref={opportunityRef}>
+            <button onClick={() => setOpportunityDropdown(!opportunityDropdown)} className="flex items-center gap-1 px-3 py-2 rounded-md text-sm font-medium text-slate-700 hover:bg-slate-100">
+              {T.nav_opportunity}
+              <svg className={`w-4 h-4 transition-transform ${opportunityDropdown ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+            </button>
+            {opportunityDropdown && (
+              <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-50">
+                <div className="py-1">
+                  <button onClick={() => handleSearchAndFilter('Tournoi')} className="block w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">{T.nav_tournaments}</button>
+                  <button onClick={() => handleSearchAndFilter('Camp')} className="block w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">{T.nav_camps}</button>
+                  <button onClick={() => handleSearchAndFilter('Académie')} className="block w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">{T.nav_academies}</button>
+                  <button onClick={() => handleSearchAndFilter('Travel Team')} className="block w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">{T.nav_travel_teams}</button>
+                </div>
+              </div>
+            )}
+          </div>
+
           {currentPage === 'home' && (
-            <div className="relative" ref={dropdownRef}>
-              <button onClick={() => setDropdownOpen(!isDropdownOpen)} className="flex items-center gap-1 px-3 py-2 rounded-md text-sm font-medium text-slate-700 hover:bg-slate-100">
+            <div className="relative" ref={personaRef}>
+              <button onClick={() => setPersonaDropdown(!personaDropdown)} className="flex items-center gap-1 px-3 py-2 rounded-md text-sm font-medium text-slate-700 hover:bg-slate-100">
                 {T.nav_for_who}
-                <svg className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                <svg className={`w-4 h-4 transition-transform ${personaDropdown ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
               </button>
-              {isDropdownOpen && (
+              {personaDropdown && (
                 <div className="absolute left-0 mt-2 w-48 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-50">
                   <div className="py-1">
                     <button onClick={() => handleScrollTo('players')} className="block w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">{T.nav_players}</button>
@@ -878,53 +933,44 @@ const Header = ({ T, lang, setLang, navigateTo, currentPage, user, onLogout }) =
   );
 };
 
-const Footer = ({ T }) => (
-  <footer className="border-t border-slate-200">
-    <div className="mx-auto max-w-7xl px-4 py-8 text-sm flex flex-col md:flex-row items-center justify-between gap-3 text-slate-500">
-      <div>{T.footer_text}</div>
-      <div className="flex items-center gap-4">
-        <a href="#" className="hover:text-slate-800">Mentions légales</a>
-        <a href="#" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-slate-800">Haut de page</a>
+const Footer = ({ T }) => {
+  return (
+    <footer className="border-t border-slate-200">
+      <div className="mx-auto max-w-7xl px-4 py-8 text-sm flex flex-col md:flex-row items-center justify-between gap-3 text-slate-500">
+        <div>{T.footer_text}</div>
+        <div className="flex items-center gap-4">
+          <a href="#" className="hover:text-slate-800">Mentions légales</a>
+          <a href="#" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-slate-800">Haut de page</a>
+        </div>
       </div>
-    </div>
-  </footer>
-);
+    </footer>
+  );
+};
+
 
 // --- COMPOSANT PRINCIPAL DE L'APPLICATION ---
 export default function App() {
   const [lang, setLang] = useState('fr');
   const [currentPage, setCurrentPage] = useState('home');
-  const [user, setUser] = useState(null); // null if logged out, user object if logged in
-  const T = copy(lang);
+  const [user, setUser] = useState(null);
+  const T = useMemo(() => copy(lang), [lang]);
   
   useEffect(() => {
     document.documentElement.lang = lang;
-    if (currentPage === 'home') return; // Don't scroll to top if we are just scrolling on the home page
+    if (currentPage === 'home') return;
     window.scrollTo(0, 0);
   }, [lang, currentPage]);
 
-  const handleLogin = (userData) => {
-    setUser(userData);
-  };
-
-  const handleLogout = () => {
-    setUser(null);
-    setCurrentPage('home');
-  };
+  const handleLogin = (userData) => { setUser(userData); };
+  const handleLogout = () => { setUser(null); setCurrentPage('home'); };
 
   const renderPage = () => {
     switch (currentPage) {
-      case 'contact':
-        return <ContactPage T={T} />;
-      case 'auth':
-        return <AuthPage T={T} onLogin={handleLogin} navigateTo={setCurrentPage} />;
-      case 'dashboard':
-        return user ? <DashboardPage T={T} user={user} navigateTo={setCurrentPage} /> : <HomePage T={T} />;
-      case 'propose':
-        return user ? <ProposeOpportunityPage T={T} /> : <HomePage T={T} />;
-      case 'home':
-      default:
-        return <HomePage T={T} />;
+      case 'contact': return <ContactPage T={T} />;
+      case 'auth': return <AuthPage T={T} onLogin={handleLogin} navigateTo={setCurrentPage} />;
+      case 'dashboard': return user ? <DashboardPage T={T} user={user} navigateTo={setCurrentPage} /> : <HomePage T={T} />;
+      case 'propose': return user ? <ProposeOpportunityPage T={T} /> : <HomePage T={T} />;
+      case 'home': default: return <HomePage T={T} />;
     }
   };
 
@@ -936,5 +982,5 @@ export default function App() {
       </main>
       <Footer T={T} />
     </div>
-  );
+  )
 }
