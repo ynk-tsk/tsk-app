@@ -1019,20 +1019,30 @@ const Roadmap = ({ T }) => {
   useEffect(() => {
     let destroyed = false;
     (async () => {
-      const { default: Chart } = await import('chart.js/auto'); // lazy
+      const { default: Chart } = await import('chart.js/auto');
       if (destroyed || !chartRef.current) return;
 
       const ctx = chartRef.current.getContext('2d');
+      
+      // Nouvelle structure de données pour la roadmap stratégique
       const roadmapData = [
-        { task: 'Enrichissement Contenu', pillar: 'Intelligence', start: 0, end: 3 },
-        { task: 'Refonte Filtres', pillar: 'Fluidité', start: 0, end: 2 },
-        { task: 'Pipeline Scraping V1', pillar: 'Intelligence', start: 3, end: 8 },
-        { task: 'Lancement TLI 2.0', pillar: 'Intelligence', start: 4, end: 9 },
-        { task: 'Vue Cartographique', pillar: 'Fluidité', start: 5, end: 8 },
-        { task: 'Version Anglaise', pillar: 'Écosystème', start: 6, end: 9 },
-        { task: 'Profils Utilisateurs', pillar: 'Écosystème', start: 7, end: 9 },
+        { task: 'Migration Next.js & SEO Technique', pillar: 'Fondation', start: 0, end: 3 },
+        { task: 'Optimisation Vitesse & Core Web Vitals', pillar: 'Fondation', start: 1, end: 4 },
+        { task: 'Mise en place Tracking & RGPD', pillar: 'Fondation', start: 2, end: 4 },
+        { task: 'Début Scraping & Acquisition Données', pillar: 'Acquisition', start: 3, end: 7 },
+        { task: 'Lancement Programmatic SEO', pillar: 'Acquisition', start: 4, end: 9 },
+        { task: 'Onboarding v1 & Alertes', pillar: 'Acquisition', start: 5, end: 8 },
+        { task: 'Campagnes SEA Ciblées', pillar: 'Acquisition', start: 6, end: 10 },
+        { task: 'Début A/B Testing & CRO', pillar: 'Optimisation', start: 9, end: 14 },
+        { task: 'Implémentation CRM & Automation', pillar: 'Optimisation', start: 10, end: 16 },
+        { task: 'Pilote Écosystème Créateurs', pillar: 'Optimisation', start: 12, end: 18 },
       ];
-      const pillarColors = { 'Fluidité': 'rgba(234, 88, 12, 0.8)', 'Intelligence': 'rgba(16, 185, 129, 0.8)', 'Écosystème': 'rgba(107, 114, 128, 0.8)' };
+      
+      const pillarColors = { 
+        'Fondation': 'rgba(59, 130, 246, 0.8)', // Bleu
+        'Acquisition': 'rgba(234, 88, 12, 0.8)', // Orange
+        'Optimisation': 'rgba(16, 185, 129, 0.8)' // Vert
+      };
 
       chartInstance.current = new Chart(ctx, {
         type: 'bar',
@@ -1049,7 +1059,6 @@ const Roadmap = ({ T }) => {
           indexAxis: 'y',
           responsive: true,
           maintainAspectRatio: false,
-          parsing: { yAxisKey: undefined }, // bar floating ok
           scales: {
             x: { min: 0, max: 18, title: { display: true, text: 'Mois', color: '#475569' }, ticks: { color: '#64748b' }, grid: { color: '#e2e8f0' } },
             y: { ticks: { color: '#334155' }, grid: { display: false } }
@@ -1057,7 +1066,14 @@ const Roadmap = ({ T }) => {
           plugins: {
             legend: { display: false },
             tooltip: {
-              callbacks: { label: ctx => `Mois ${ctx.raw[0]} → ${ctx.raw[1]}` }
+              callbacks: { 
+                label: (context) => {
+                  const pillar = roadmapData[context.dataIndex].pillar;
+                  const start = context.raw[0];
+                  const end = context.raw[1];
+                  return `${pillar}: Mois ${start} → ${end}`;
+                }
+              }
             }
           }
         }
@@ -1075,7 +1091,7 @@ const Roadmap = ({ T }) => {
       <div className="mx-auto max-w-7xl px-4">
         <h2 className="text-3xl font-bold text-center text-slate-900">{T.roadmap_title}</h2>
         <p className="text-slate-600 text-center mt-4">{T.roadmap_subtitle}</p>
-        <CardBase className="mt-12 p-6 h-96">
+        <CardBase className="mt-12 p-6 h-[500px]">
           <canvas ref={chartRef} aria-label="Feuille de route TSK" role="img"></canvas>
         </CardBase>
       </div>
