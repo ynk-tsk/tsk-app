@@ -1,7 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import Chart from 'chart.js/auto';
 
-// ... (Le reste du code, comme les dictionnaires et les données, reste le même) ...
 // --- Dictionnaire de textes (i18n) ---
 const copy = (lang) => {
   const dict = {
@@ -140,8 +139,8 @@ const Header = ({ T, lang, setLang }) => (
   <header className="sticky top-0 z-40 w-full backdrop-blur-sm border-b border-slate-200 bg-white/80">
     <div className="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
       <div className="flex items-center gap-3">
-        {/* FIX: Corrected image path to be absolute from the public folder */}
-        <img src="/logo.jpg" alt="TSK Logo" className="h-10 w-10 rounded-lg" onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/40x40/f97316/white?text=TSK'; }}/>
+        {/* FIX: Corrected image path to use .png */}
+        <img src="/logo.png" alt="TSK Logo" className="h-10 w-10 rounded-lg" onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/40x40/f97316/white?text=TSK'; }}/>
         <div className="font-semibold text-slate-800">TSK Sport</div>
       </div>
       <nav className="hidden md:flex items-center gap-1">
@@ -160,8 +159,8 @@ const Header = ({ T, lang, setLang }) => (
 const Hero = ({ T }) => (
   <section className="relative text-center py-20 md:py-32 overflow-hidden">
     <div className="absolute inset-0">
-        {/* FIX: Corrected image path */}
-        <img src="/hero-background.jpg" alt="Young athlete focused before a competition" className="w-full h-full object-cover" onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/1920x1080/1e293b/f8fafc?text=Focus'; }}/>
+        {/* FIX: Corrected image path to use .png */}
+        <img src="/hero-background.png" alt="Young athlete focused before a competition" className="w-full h-full object-cover" onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/1920x1080/1e293b/f8fafc?text=Focus'; }}/>
         <div className="absolute inset-0 bg-black/50"></div>
     </div>
     <div className="relative mx-auto max-w-4xl px-4">
@@ -541,8 +540,8 @@ const ForOrganizers = ({ T }) => (
                     </div>
                 </div>
                 <div className="relative h-80 rounded-xl overflow-hidden">
-                    {/* FIX: Corrected image path */}
-                    <img src="/organizers-background.jpg" alt="Vue aérienne d'un tournoi de sport" className="w-full h-full object-cover" onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/800x600/f97316/white?text=Event'; }}/>
+                    {/* FIX: Corrected image path to use .png */}
+                    <img src="/organizers-background.png" alt="Vue aérienne d'un tournoi de sport" className="w-full h-full object-cover" onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/800x600/f97316/white?text=Event'; }}/>
                 </div>
             </div>
         </div>
@@ -552,8 +551,8 @@ const ForOrganizers = ({ T }) => (
 const Concierge = ({ T }) => (
     <section id="concierge" className="py-20 bg-slate-900 text-white relative overflow-hidden">
         <div className="absolute inset-0">
-            {/* FIX: Corrected image path */}
-            <img src="/concierge-background.jpg" className="w-full h-full object-cover opacity-20" alt="Planning desk" onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/1920x1080/1e293b/f8fafc?text=Strategy'; }}/>
+            {/* FIX: Corrected image path to use .png */}
+            <img src="/concierge-background.png" className="w-full h-full object-cover opacity-20" alt="Planning desk" onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/1920x1080/1e293b/f8fafc?text=Strategy'; }}/>
         </div>
         <div className="relative mx-auto max-w-7xl px-4 text-center">
             <h2 className="text-4xl font-bold" style={{ fontFamily: "'Playfair Display', serif" }}>{T.concierge_section_title}</h2>
