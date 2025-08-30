@@ -4,15 +4,19 @@ import React, { useState, useMemo, useEffect, useRef, useCallback } from "react"
 const copy = (lang) => {
   const dict = {
     fr: {
-      nav_home: 'Accueil', nav_opportunity: 'Trouver une opportunité', nav_for_who: 'Pour...', nav_players: 'Les Joueurs', nav_coaches: 'Les Coachs', nav_organizers: 'Les Organisateurs', nav_contact: 'Contact', nav_tournaments: 'Tournois', nav_camps: 'Camps', nav_academies: 'Académies', nav_travel_teams: 'Travel Teams',
+      nav_home: 'Accueil', nav_opportunity: 'Trouver une opportunité', nav_for_who: 'Pour...', nav_players: 'Les Joueurs', nav_coaches: 'Les Coachs', nav_organizers: 'Les Organisateurs', nav_clubs: 'Les Clubs', nav_contact: 'Contact', nav_about_us: 'Qui sommes-nous ?', nav_tournaments: 'Tournois', nav_camps: 'Camps', nav_academies: 'Académies', nav_travel_teams: 'Travel Teams',
       nav_login: 'Connexion', nav_signup: 'Inscription', nav_dashboard: 'Tableau de Bord', nav_logout: 'Déconnexion',
-      h1_top: 'Trouvez, Comparez, Progressez.', h1_highlight: 'Votre Avenir Sportif Commence Ici.', h1_sub: 'La plateforme qui transforme votre potentiel en performance. Accédez à des milliers de tournois, camps, et académies. Évaluez la compétition avec nos classements exclusifs.',
+      h1_top: 'Moteur de recherche d’événements sportifs',
+      h1_highlight: '',
+      h1_sub: 'Que vous soyez joueur, coach, club ou équipe, accédez à notre annuaire multisport répertoriant des milliers de tournois, camps et académies.',
       cta_primary: 'Trouver une opportunité', cta_secondary: 'Je suis un organisateur',
       social_proof_title: 'Ils nous font confiance pour façonner l\'avenir du sport',
       search_title: 'Trouvez votre prochaine opportunité', search_subtitle: 'Utilisez nos filtres pour découvrir l\'expérience parfaite pour votre développement.',
       search_keyword: 'Mot-clé (nom, ville...)',
       filter_type: 'Type d\'opportunité', filter_sport: 'Sport', filter_level: 'Niveau', filter_country: 'Pays', filter_date_start: 'Date de début', filter_date_end: 'Date de fin', filter_gender: 'Genre', filter_category: 'Catégorie d\'âge',
-      type_all: 'Toutes', type_tournament: 'Tournoi', type_camp: 'Camp', type_academy: 'Académie', type_coach: 'Coach', type_venue: 'Lieu', type_travel_team: 'Travel Team',
+      type_all: 'Toutes', type_tournament: 'Tournoi', type_camp: 'Camp', type_academy: 'Académie', type_coach: 'Coach personnel', type_venue: 'Lieu / Infrastructure', type_travel_team: 'Travel Team',
+      contextual_help_travel_team: 'Une Travel Team est une équipe sélective constituée spécialement pour un déplacement ou un tournoi (hors cadre club habituel).',
+      contextual_help_venue: 'Lieux où joueurs, coachs, clubs et organisateurs peuvent s’entraîner, louer des terrains, organiser des matchs ou accueillir des tournois (basket center, playground couvert, etc.).',
       view_list: 'Liste', view_map: 'Carte',
       gender_all: 'Tous', gender_male: 'Masculin', gender_female: 'Féminin', gender_mixed: 'Mixte',
       filter_all: 'Tous',
@@ -39,27 +43,36 @@ const copy = (lang) => {
       coaches_s1_title: 'Alertes Personnalisées', coaches_s1_text: 'Enregistrez vos filtres de recherche et recevez des notifications dès qu\'une nouvelle opportunité correspondant à vos critères est ajoutée.',
       coaches_s2_title: 'Analyse de la Compétition', coaches_s2_text: 'Utilisez nos classements et les résultats passés pour préparer vos équipes et définir votre stratégie pour la saison.',
       coaches_cta: 'Optimiser ma saison',
+      clubs_title: 'Pour les Clubs',
+      clubs_subtitle: 'Planifiez la saison de toutes vos équipes en un seul endroit.',
+      clubs_s1_title: 'Tout centraliser',
+      clubs_s1_text: 'Trouvez des tournois adaptés par catégorie d’âge, suivez les performances et valorisez vos résultats.',
+      clubs_s2_title: 'Gagner du temps',
+      clubs_s2_text: 'Gérez les inscriptions de plusieurs équipes et simplifiez la logistique.',
+      clubs_cta: 'Découvrir nos solutions Clubs',
+      clubs_tip: 'Astuce : créez un compte club, enregistrez vos filtres par catégories d’âge et recevez des alertes lorsqu’un nouveau tournoi correspond à vos critères.',
       organizers_title: 'Pour les Organisateurs',
       organizers_subtitle: 'Donnez à votre événement la visibilité qu\'il mérite. Rejoignez notre plateforme globale.',
       organizers_standard_cta: 'Inscrire votre événement',
-      concierge_section_title: 'Conciergerie TSK',
-      concierge_section_subtitle: 'L\'excellence sur-mesure pour les joueurs, les coachs et les organisateurs.',
-      concierge_for_players_title: 'Pour les Joueurs & Familles',
-      concierge_for_players_text: 'Concentrez-vous sur la performance, nous gérons la logistique. Voyage, hébergement, et services sur place pour une expérience sans stress.',
-      concierge_for_coaches_title: 'Pour les Coachs & Clubs',
-      concierge_for_coaches_text: 'Simplifiez l\'organisation de vos déplacements. Nous proposons des solutions de groupe pour le transport, l\'hébergement et la planification.',
-      concierge_for_organizers_title: 'Pour les Organisateurs',
-      concierge_for_organizers_text: 'Sublimez votre événement. De la production vidéo à la gestion des réseaux sociaux, nos services premium maximisent votre impact.',
-      concierge_cta: 'Demander un entretien confidentiel',
+      accompagnement_section_title: 'Services d’accompagnement TSK',
+      accompagnement_section_subtitle: 'Un accompagnement sur-mesure pour joueurs, coachs, clubs et organisateurs.',
+      accompagnement_for_players_title: 'Pour les Joueurs & Familles',
+      accompagnement_for_players_text: 'Concentrez-vous sur la performance, nous gérons la logistique. Voyage, hébergement, et services sur place pour une expérience sans stress.',
+      accompagnement_for_coaches_title: 'Pour les Coachs & Clubs',
+      accompagnement_for_coaches_text: 'Simplifiez l\'organisation de vos déplacements. Nous proposons des solutions de groupe pour le transport, l\'hébergement et la planification.',
+      accompagnement_for_organizers_title: 'Pour les Organisateurs',
+      accompagnement_for_organizers_text: 'Sublimez votre événement. De la production vidéo à la gestion des réseaux sociaux, nos services premium maximisent votre impact.',
+      accompagnement_cta: 'Parler à un conseiller',
       roadmap_title: 'Notre Feuille de Route pour la Communauté',
       roadmap_subtitle: 'Nous faisons évoluer constamment la plateforme avec des fonctionnalités qui vous servent.',
       footer_text: '© 2025 TSK — Le sport pour tous, simplifié.',
       contact_title: 'Contactez-nous',
       contact_subtitle: 'Une question, une suggestion, ou besoin d\'aide ? Notre équipe est là pour vous répondre.',
       contact_reason_player: 'Je suis un joueur / parent',
-      contact_reason_coach: 'Je suis un coach / club',
+      contact_reason_coach: 'Je suis un coach',
+      contact_reason_club: 'Je représente un club',
       contact_reason_organizer: 'Je suis un organisateur',
-      contact_reason_concierge: 'Je souhaite en savoir plus sur la Conciergerie',
+      contact_reason_accompagnement: 'Je souhaite en savoir plus sur les services d’accompagnement',
       contact_reason_other: 'Autre',
       contact_name: 'Votre nom',
       contact_email: 'Votre email',
@@ -67,6 +80,10 @@ const copy = (lang) => {
       contact_message: 'Votre message',
       contact_send: 'Envoyer le message',
       contact_success: 'Merci ! Votre message a bien été envoyé. Nous vous répondrons dans les plus brefs délais.',
+      about_us_title: 'Notre Mission',
+      about_us_subtitle: 'Rendre le sport accessible et révéler le potentiel de chaque athlète.',
+      about_us_p1: 'TSK Sport est né d\'une passion commune pour le sport et d\'un constat simple : l\'accès à l\'information et aux opportunités sportives est fragmenté et complexe. Notre plateforme a pour but de centraliser, de simplifier et de démocratiser l\'accès au développement sportif.',
+      about_us_p2: 'Nous connectons les joueurs, les coachs, les clubs et les organisateurs pour créer un écosystème vertueux où le talent peut s\'épanouir. Grâce à nos outils de recherche, nos classements et nos services, nous accompagnons chaque acteur du monde sportif dans son parcours vers l\'excellence.',
       auth_login_title: 'Se connecter à votre compte',
       auth_signup_title: 'Créer un compte TSK',
       auth_email: 'Adresse email',
@@ -82,23 +99,26 @@ const copy = (lang) => {
       propose_name: 'Nom de l\'opportunité',
       propose_submit: 'Soumettre pour validation',
       propose_success: 'Merci ! Votre opportunité a été soumise et sera examinée par notre équipe.',
-      // Alts
       alt_logo: 'Logo TSK',
       alt_hero: 'Jeune athlète concentré avant une compétition',
       alt_organizers_bg: 'Vue aérienne d\'un tournoi de sport',
-      alt_concierge_bg: 'Bureau de planification',
+      alt_accompagnement_bg: 'Bureau de planification',
       alt_map_placeholder: 'Vue carte bientôt disponible'
     },
     en: {
-      nav_home: 'Home', nav_opportunity: 'Find Opportunity', nav_for_who: 'For...', nav_players: 'Players', nav_coaches: 'Coaches', nav_organizers: 'Organizers', nav_contact: 'Contact', nav_tournaments: 'Tournaments', nav_camps: 'Camps', nav_academies: 'Academies', nav_travel_teams: 'Travel Teams',
+      nav_home: 'Home', nav_opportunity: 'Find Opportunity', nav_for_who: 'For...', nav_players: 'Players', nav_coaches: 'Coaches', nav_organizers: 'Organizers', nav_clubs: 'Clubs', nav_contact: 'Contact', nav_about_us: 'About Us', nav_tournaments: 'Tournaments', nav_camps: 'Camps', nav_academies: 'Academies', nav_travel_teams: 'Travel Teams',
       nav_login: 'Login', nav_signup: 'Sign Up', nav_dashboard: 'Dashboard', nav_logout: 'Logout',
-      h1_top: 'Find, Compare, Progress.', h1_highlight: 'Your Athletic Future Starts Here.', h1_sub: 'The platform that turns your potential into performance. Access thousands of tournaments, camps, and academies. Evaluate the competition with our exclusive rankings.',
+      h1_top: 'Sports Event Search Engine',
+      h1_highlight: '',
+      h1_sub: 'Whether you are a player, coach, club, or team, access our multi-sport directory listing thousands of tournaments, camps, and academies.',
       cta_primary: 'Find an opportunity', cta_secondary: 'I am an organizer',
       social_proof_title: 'Trusted by them to shape the future of sports',
       search_title: 'Find Your Next Opportunity', search_subtitle: 'Use our filters to discover the perfect experience for your development.',
       search_keyword: 'Keyword (name, city...)',
       filter_type: 'Opportunity Type', filter_sport: 'Sport', filter_level: 'Level', filter_country: 'Country', filter_date_start: 'Start Date', filter_date_end: 'End Date', filter_gender: 'Gender', filter_category: 'Age Category',
-      type_all: 'All', type_tournament: 'Tournament', type_camp: 'Camp', type_academy: 'Academy', type_coach: 'Coach', type_venue: 'Venue', type_travel_team: 'Travel Team',
+      type_all: 'All', type_tournament: 'Tournament', type_camp: 'Camp', type_academy: 'Academy', type_coach: 'Personal Coach', type_venue: 'Venue / Infrastructure', type_travel_team: 'Travel Team',
+      contextual_help_travel_team: 'A Travel Team is a selective team formed specifically for a trip or tournament (outside the usual club framework).',
+      contextual_help_venue: 'Venues where players, coaches, clubs, and organizers can train, rent courts, organize matches, or host tournaments (basketball center, indoor playground, etc.).',
       view_list: 'List', view_map: 'Map',
       gender_all: 'All', gender_male: 'Male', gender_female: 'Female', gender_mixed: 'Mixed',
       filter_all: 'All',
@@ -125,27 +145,36 @@ const copy = (lang) => {
       coaches_s1_title: 'Custom Alerts', coaches_s1_text: 'Save your search filters and receive notifications as soon as a new opportunity matching your criteria is added.',
       coaches_s2_title: 'Competition Analysis', coaches_s2_text: 'Use our rankings and past results to prepare your teams and define your strategy for the season.',
       coaches_cta: 'Optimize my season',
+      clubs_title: 'For Clubs',
+      clubs_subtitle: 'Plan the season for all your teams in one place.',
+      clubs_s1_title: 'Centralize Everything',
+      clubs_s1_text: 'Find suitable tournaments by age category, track performance, and showcase your results.',
+      clubs_s2_title: 'Save Time',
+      clubs_s2_text: 'Manage registrations for multiple teams and simplify logistics.',
+      clubs_cta: 'Discover our Club Solutions',
+      clubs_tip: 'Tip: create a club account, save your filters by age category, and receive alerts when a new tournament matches your criteria.',
       organizers_title: 'For Organizers',
       organizers_subtitle: 'Give your event the visibility it deserves. Join our global platform.',
       organizers_standard_cta: 'List your event',
-      concierge_section_title: 'TSK Concierge',
-      concierge_section_subtitle: 'Tailor-made excellence for players, coaches, and organizers.',
-      concierge_for_players_title: 'For Players & Families',
-      concierge_for_players_text: 'Focus on performance, we handle the logistics. Travel, accommodation, and on-site services for a stress-free experience.',
-      concierge_for_coaches_title: 'For Coaches & Clubs',
-      concierge_for_coaches_text: 'Simplify your travel arrangements. We offer group solutions for transportation, lodging, and scheduling.',
-      concierge_for_organizers_title: 'For Organizers',
-      concierge_for_organizers_text: 'Elevate your event. From video production to social media management, our premium services maximize your impact.',
-      concierge_cta: 'Request a confidential consultation',
+      accompagnement_section_title: 'TSK Support Services',
+      accompagnement_section_subtitle: 'Tailored support for players, coaches, clubs, and organizers.',
+      accompagnement_for_players_title: 'For Players & Families',
+      accompagnement_for_players_text: 'Focus on performance, we handle the logistics. Travel, accommodation, and on-site services for a stress-free experience.',
+      accompagnement_for_coaches_title: 'For Coaches & Clubs',
+      accompagnement_for_coaches_text: 'Simplify your travel arrangements. We offer group solutions for transportation, lodging, and scheduling.',
+      accompagnement_for_organizers_title: 'For Organizers',
+      accompagnement_for_organizers_text: 'Elevate your event. From video production to social media management, our premium services maximize your impact.',
+      accompagnement_cta: 'Speak to an advisor',
       roadmap_title: 'Our Community Roadmap',
       roadmap_subtitle: 'We are constantly evolving the platform with features that serve you.',
       footer_text: '© 2025 TSK — Sports for everyone, simplified.',
       contact_title: 'Contact Us',
       contact_subtitle: 'Have a question, a suggestion, or need help? Our team is here to answer you.',
       contact_reason_player: 'I am a player / parent',
-      contact_reason_coach: 'I am a coach / club',
+      contact_reason_coach: 'I am a coach',
+      contact_reason_club: 'I represent a club',
       contact_reason_organizer: 'I am an organizer',
-      contact_reason_concierge: 'I want to know more about Concierge services',
+      contact_reason_accompagnement: 'I want to know more about support services',
       contact_reason_other: 'Other',
       contact_name: 'Your name',
       contact_email: 'Your email',
@@ -153,6 +182,10 @@ const copy = (lang) => {
       contact_message: 'Your message',
       contact_send: 'Send message',
       contact_success: 'Thank you! Your message has been sent. We will get back to you as soon as possible.',
+      about_us_title: 'Our Mission',
+      about_us_subtitle: 'Making sports accessible and unlocking every athlete\'s potential.',
+      about_us_p1: 'TSK Sport was born from a shared passion for sports and a simple observation: access to sports information and opportunities is fragmented and complex. Our platform aims to centralize, simplify, and democratize access to sports development.',
+      about_us_p2: 'We connect players, coaches, clubs, and organizers to create a virtuous ecosystem where talent can flourish. Through our search tools, rankings, and services, we support every actor in the sports world on their journey to excellence.',
       auth_login_title: 'Log in to your account',
       auth_signup_title: 'Create a TSK account',
       auth_email: 'Email address',
@@ -171,19 +204,23 @@ const copy = (lang) => {
       alt_logo: 'TSK Logo',
       alt_hero: 'Young athlete focused before a competition',
       alt_organizers_bg: 'Aerial view of a sports tournament',
-      alt_concierge_bg: 'Planning desk',
+      alt_accompagnement_bg: 'Planning desk',
       alt_map_placeholder: 'Map view coming soon'
     },
     es: {
-      nav_home: 'Inicio', nav_opportunity: 'Encontrar Oportunidad', nav_for_who: 'Para...', nav_players: 'Jugadores', nav_coaches: 'Entrenadores', nav_organizers: 'Organizadores', nav_contact: 'Contacto', nav_tournaments: 'Torneos', nav_camps: 'Campamentos', nav_academies: 'Academias', nav_travel_teams: 'Equipos de Viaje',
+      nav_home: 'Inicio', nav_opportunity: 'Encontrar Oportunidad', nav_for_who: 'Para...', nav_players: 'Jugadores', nav_coaches: 'Entrenadores', nav_organizers: 'Organizadores', nav_clubs: 'Clubes', nav_contact: 'Contacto', nav_about_us: 'Quiénes somos', nav_tournaments: 'Torneos', nav_camps: 'Campamentos', nav_academies: 'Academias', nav_travel_teams: 'Equipos de Viaje',
       nav_login: 'Iniciar Sesión', nav_signup: 'Registrarse', nav_dashboard: 'Panel', nav_logout: 'Cerrar Sesión',
-      h1_top: 'Encuentra, Compara, Progresa.', h1_highlight: 'Tu Futuro Deportivo Comienza Aquí.', h1_sub: 'La plataforma que convierte tu potencial en rendimiento. Accede a miles de torneos, campamentos y academias. Evalúa la competencia con nuestros rankings exclusivos.',
+      h1_top: 'Motor de búsqueda de eventos deportivos',
+      h1_highlight: '',
+      h1_sub: 'Ya seas jugador, entrenador, club o equipo, accede a nuestro directorio multideporte que lista miles de torneos, campamentos y academias.',
       cta_primary: 'Encontrar una oportunidad', cta_secondary: 'Soy un organizador',
       social_proof_title: 'Confían en nosotros para dar forma al futuro del deporte',
       search_title: 'Encuentra tu Próxima Oportunidad', search_subtitle: 'Usa nuestros filtros para descubrir la experiencia perfecta para tu desarrollo.',
       search_keyword: 'Palabra clave (nombre, ciudad...)',
       filter_type: 'Tipo de oportunidad', filter_sport: 'Deporte', filter_level: 'Nivel', filter_country: 'País', filter_date_start: 'Fecha de inicio', filter_date_end: 'Fecha de fin', filter_gender: 'Género', filter_category: 'Categoría de edad',
-      type_all: 'Todos', type_tournament: 'Torneo', type_camp: 'Campamento', type_academy: 'Academia', type_coach: 'Entrenador', type_venue: 'Lugar', type_travel_team: 'Equipo de Viaje',
+      type_all: 'Todos', type_tournament: 'Torneo', type_camp: 'Campamento', type_academy: 'Academia', type_coach: 'Entrenador personal', type_venue: 'Lugar / Infraestructura', type_travel_team: 'Equipo de Viaje',
+      contextual_help_travel_team: 'Un Travel Team es un equipo selectivo formado específicamente para un viaje o torneo (fuera del marco habitual del club).',
+      contextual_help_venue: 'Lugares donde jugadores, entrenadores, clubes y organizadores pueden entrenar, alquilar canchas, organizar partidos o albergar torneos (centro de baloncesto, cancha cubierta, etc.).',
       view_list: 'Lista', view_map: 'Mapa',
       gender_all: 'Todos', gender_male: 'Masculino', gender_female: 'Femenino', gender_mixed: 'Mixto',
       filter_all: 'Todos',
@@ -210,27 +247,36 @@ const copy = (lang) => {
       coaches_s1_title: 'Alertas Personalizadas', coaches_s1_text: 'Guarda tus filtros de búsqueda y recibe notificaciones tan pronto como se agregue una nueva oportunidad que coincida con tus criterios.',
       coaches_s2_title: 'Análisis de la Competencia', coaches_s2_text: 'Utiliza nuestros rankings y resultados pasados para preparar a tus equipos y definir tu estrategia para la temporada.',
       coaches_cta: 'Optimizar mi temporada',
+      clubs_title: 'Para Clubes',
+      clubs_subtitle: 'Planifica la temporada de todos tus equipos en un solo lugar.',
+      clubs_s1_title: 'Centralizar todo',
+      clubs_s1_text: 'Encuentra torneos adecuados por categoría de edad, sigue el rendimiento y valora tus resultados.',
+      clubs_s2_title: 'Ahorrar tiempo',
+      clubs_s2_text: 'Gestiona las inscripciones de varios equipos y simplifica la logística.',
+      clubs_cta: 'Descubrir nuestras soluciones para Clubes',
+      clubs_tip: 'Consejo: cree una cuenta de club, guarde sus filtros por categoría de edad y reciba alertas cuando un nuevo torneo coincida con sus criterios.',
       organizers_title: 'Para Organizadores',
       organizers_subtitle: 'Dale a tu evento la visibilidad que merece. Únete a nuestra plataforma global.',
       organizers_standard_cta: 'Inscribe tu evento',
-      concierge_section_title: 'Concierge TSK',
-      concierge_section_subtitle: 'Excelencia a medida para jugadores, entrenadores y organizadores.',
-      concierge_for_players_title: 'Para Jugadores y Familias',
-      concierge_for_players_text: 'Concéntrate en el rendimiento, nosotros nos encargamos de la logística. Viajes, alojamiento y servicios en el lugar para una experiencia sin estrés.',
-      concierge_for_coaches_title: 'Para Entrenadores y Clubes',
-      concierge_for_coaches_text: 'Simplifica la organización de tus viajes. Ofrecemos soluciones grupales para transporte, alojamiento y planificación.',
-      concierge_for_organizers_title: 'Para Organizadores',
-      concierge_for_organizers_text: 'Realza tu evento. Desde la producción de video hasta la gestión de redes sociales, nuestros servicios premium maximizan tu impacto.',
-      concierge_cta: 'Solicitar una consulta confidencial',
+      accompagnement_section_title: 'Servicios de Acompañamiento TSK',
+      accompagnement_section_subtitle: 'Un apoyo a medida para jugadores, entrenadores, clubes y organizadores.',
+      accompagnement_for_players_title: 'Para Jugadores y Familias',
+      accompagnement_for_players_text: 'Concéntrese en el rendimiento, nosotros nos encargamos de la logística. Viajes, alojamiento y servicios in situ para una experiencia sin estrés.',
+      accompagnement_for_coaches_title: 'Para Entrenadores y Clubes',
+      accompagnement_for_coaches_text: 'Simplifica la organización de tus viajes. Ofrecemos soluciones grupales para transporte, alojamiento y planificación.',
+      accompagnement_for_organizers_title: 'Para Organizadores',
+      accompagnement_for_organizers_text: 'Realza tu evento. Desde la producción de video hasta la gestión de redes sociales, nuestros servicios premium maximizan tu impacto.',
+      accompagnement_cta: 'Hablar con un asesor',
       roadmap_title: 'Nuestra Hoja de Ruta para la Comunidad',
       roadmap_subtitle: 'Estamos constantemente evolucionando la plataforma con características que te sirven.',
       footer_text: '© 2025 TSK — Deporte para todos, simplificado.',
       contact_title: 'Contáctanos',
       contact_subtitle: '¿Tienes una pregunta, una sugerencia o necesitas ayuda? Nuestro equipo está aquí para responderte.',
       contact_reason_player: 'Soy un jugador / padre',
-      contact_reason_coach: 'Soy un entrenador / club',
+      contact_reason_coach: 'Soy un entrenador',
+      contact_reason_club: 'Represento a un club',
       contact_reason_organizer: 'Soy un organizador',
-      contact_reason_concierge: 'Quiero saber más sobre los servicios de Concierge',
+      contact_reason_accompagnement: 'Quiero saber más sobre los servicios de acompañamiento',
       contact_reason_other: 'Otro',
       contact_name: 'Tu nombre',
       contact_email: 'Tu correo electrónico',
@@ -238,6 +284,10 @@ const copy = (lang) => {
       contact_message: 'Tu mensaje',
       contact_send: 'Enviar mensaje',
       contact_success: '¡Gracias! Tu mensaje ha sido enviado. Nos pondremos en contacto contigo lo antes posible.',
+      about_us_title: 'Nuestra Misión',
+      about_us_subtitle: 'Hacer el deporte accesible y revelar el potencial de cada atleta.',
+      about_us_p1: 'TSK Sport nació de una pasión compartida por el deporte y una simple observación: el acceso a la información y a las oportunidades deportivas está fragmentado y es complejo. Nuestra plataforma tiene como objetivo centralizar, simplificar y democratizar el acceso al desarrollo deportivo.',
+      about_us_p2: 'Conectamos a jugadores, entrenadores, clubes y organizadores para crear un ecosistema virtuoso donde el talento pueda florecer. A través de nuestras herramientas de búsqueda, clasificaciones y servicios, apoyamos a cada actor del mundo del deporte en su camino hacia la excelencia.',
       auth_login_title: 'Iniciar sesión en tu cuenta',
       auth_signup_title: 'Crear una cuenta TSK',
       auth_email: 'Dirección de correo electrónico',
@@ -256,19 +306,23 @@ const copy = (lang) => {
       alt_logo: 'Logo TSK',
       alt_hero: 'Joven atleta concentrado antes de una competición',
       alt_organizers_bg: 'Vista aérea de un torneo deportivo',
-      alt_concierge_bg: 'Escritorio de planificación',
+      alt_accompagnement_bg: 'Escritorio de planificación',
       alt_map_placeholder: 'Vista de mapa disponible pronto'
     },
     de: {
-      nav_home: 'Startseite', nav_opportunity: 'Gelegenheit finden', nav_for_who: 'Für...', nav_players: 'Spieler', nav_coaches: 'Trainer', nav_organizers: 'Veranstalter', nav_contact: 'Kontakt', nav_tournaments: 'Turniere', nav_camps: 'Camps', nav_academies: 'Akademien', nav_travel_teams: 'Reiseteams',
+      nav_home: 'Startseite', nav_opportunity: 'Gelegenheit finden', nav_for_who: 'Für...', nav_players: 'Spieler', nav_coaches: 'Trainer', nav_organizers: 'Veranstalter', nav_clubs: 'Vereine', nav_contact: 'Kontakt', nav_about_us: 'Über uns', nav_tournaments: 'Turniere', nav_camps: 'Camps', nav_academies: 'Akademien', nav_travel_teams: 'Reiseteams',
       nav_login: 'Anmelden', nav_signup: 'Registrieren', nav_dashboard: 'Dashboard', nav_logout: 'Abmelden',
-      h1_top: 'Finden, Vergleichen, Fortschritte machen.', h1_highlight: 'Deine sportliche Zukunft beginnt hier.', h1_sub: 'Die Plattform, die Ihr Potenzial in Leistung umwandelt. Greifen Sie auf Tausende von Turnieren, Camps und Akademien zu. Bewerten Sie den Wettbewerb mit unseren exklusiven Ranglisten.',
+      h1_top: 'Suchmaschine für Sportveranstaltungen',
+      h1_highlight: '',
+      h1_sub: 'Ob Spieler, Trainer, Verein oder Team, greifen Sie auf unser Multisportverzeichnis zu, das Tausende von Turnieren, Camps und Akademien auflistet.',
       cta_primary: 'Eine Gelegenheit finden', cta_secondary: 'Ich bin ein Veranstalter',
       social_proof_title: 'Sie vertrauen uns, die Zukunft des Sports zu gestalten',
       search_title: 'Finde deine nächste Gelegenheit', search_subtitle: 'Nutze unsere Filter, um die perfekte Erfahrung für deine Entwicklung zu entdecken.',
       search_keyword: 'Stichwort (Name, Stadt...)',
       filter_type: 'Art der Gelegenheit', filter_sport: 'Sport', filter_level: 'Niveau', filter_country: 'Land', filter_date_start: 'Startdatum', filter_date_end: 'Enddatum', filter_gender: 'Geschlecht', filter_category: 'Alterskategorie',
-      type_all: 'Alle', type_tournament: 'Turnier', type_camp: 'Camp', type_academy: 'Akademie', type_coach: 'Trainer', type_venue: 'Veranstaltungsort', type_travel_team: 'Reiseteam',
+      type_all: 'Alle', type_tournament: 'Turnier', type_camp: 'Camp', type_academy: 'Akademie', type_coach: 'Personal Trainer', type_venue: 'Ort / Infrastruktur', type_travel_team: 'Reiseteam',
+      contextual_help_travel_team: 'Ein Travel Team ist eine Auswahlmannschaft, die speziell für eine Reise oder ein Turnier gebildet wird (außerhalb des üblichen Vereinsrahmens).',
+      contextual_help_venue: 'Orte, an denen Spieler, Trainer, Vereine und Organisatoren trainieren, Plätze mieten, Spiele organisieren oder Turniere ausrichten können (Basketballzentrum, überdachter Spielplatz usw.).',
       view_list: 'Liste', view_map: 'Karte',
       gender_all: 'Alle', gender_male: 'Männlich', gender_female: 'Weiblich', gender_mixed: 'Gemischt',
       filter_all: 'Alle',
@@ -295,27 +349,36 @@ const copy = (lang) => {
       coaches_s1_title: 'Benutzerdefinierte Benachrichtigungen', coaches_s1_text: 'Speichern Sie Ihre Suchfilter und erhalten Sie Benachrichtigungen, sobald eine neue Gelegenheit hinzugefügt wird, die Ihren Kriterien entspricht.',
       coaches_s2_title: 'Wettbewerbsanalyse', coaches_s2_text: 'Nutzen Sie unsere Ranglisten und vergangenen Ergebnisse, um Ihre Teams vorzubereiten und Ihre Strategie für die Saison festzulegen.',
       coaches_cta: 'Meine Saison optimieren',
+      clubs_title: 'Für Vereine',
+      clubs_subtitle: 'Planen Sie die Saison für alle Ihre Teams an einem Ort.',
+      clubs_s1_title: 'Alles zentralisieren',
+      clubs_s1_text: 'Finden Sie passende Turniere nach Altersklasse, verfolgen Sie die Leistungen und werten Sie Ihre Ergebnisse auf.',
+      clubs_s2_title: 'Zeit sparen',
+      clubs_s2_text: 'Verwalten Sie die Anmeldungen für mehrere Teams und vereinfachen Sie die Logistik.',
+      clubs_cta: 'Entdecken Sie unsere Vereinslösungen',
+      clubs_tip: 'Tipp: Erstellen Sie ein Vereinskonto, speichern Sie Ihre Filter nach Altersklassen und erhalten Sie Benachrichtigungen, wenn ein neues Turnier Ihren Kriterien entspricht.',
       organizers_title: 'Für Veranstalter',
       organizers_subtitle: 'Geben Sie Ihrer Veranstaltung die Sichtbarkeit, die sie verdient. Treten Sie unserer globalen Plattform bei.',
       organizers_standard_cta: 'Ihre Veranstaltung eintragen',
-      concierge_section_title: 'TSK Concierge',
-      concierge_section_subtitle: 'Maßgeschneiderte Exzellenz für Spieler, Trainer und Veranstalter.',
-      concierge_for_players_title: 'Für Spieler & Familien',
-      concierge_for_players_text: 'Konzentrieren Sie sich auf die Leistung, wir kümmern uns um die Logistik. Reisen, Unterkunft und Dienstleistungen vor Ort für ein stressfreies Erlebnis.',
-      concierge_for_coaches_title: 'Für Trainer & Vereine',
-      concierge_for_coaches_text: 'Vereinfachen Sie Ihre Reiseorganisation. Wir bieten Gruppenlösungen für Transport, Unterkunft und Planung.',
-      concierge_for_organizers_title: 'Für Veranstalter',
-      concierge_for_organizers_text: 'Werten Sie Ihre Veranstaltung auf. Von der Videoproduktion bis zum Social-Media-Management maximieren unsere Premium-Services Ihre Wirkung.',
-      concierge_cta: 'Eine vertrauliche Beratung anfordern',
+      accompagnement_section_title: 'TSK Begleitdienste',
+      accompagnement_section_subtitle: 'Maßgeschneiderte Unterstützung für Spieler, Trainer, Vereine und Organisatoren.',
+      accompagnement_for_players_title: 'Für Spieler & Familien',
+      accompagnement_for_players_text: 'Konzentrieren Sie sich auf die Leistung, wir kümmern uns um die Logistik. Reisen, Unterkunft und Dienstleistungen vor Ort für ein stressfreies Erlebnis.',
+      accompagnement_for_coaches_title: 'Für Trainer & Vereine',
+      accompagnement_for_coaches_text: 'Vereinfachen Sie Ihre Reiseorganisation. Wir bieten Gruppenlösungen für Transport, Unterkunft und Planung.',
+      accompagnement_for_organizers_title: 'Für Veranstalter',
+      accompagnement_for_organizers_text: 'Werten Sie Ihre Veranstaltung auf. Von der Videoproduktion bis zum Social-Media-Management maximieren unsere Premium-Services Ihre Wirkung.',
+      accompagnement_cta: 'Mit einem Berater sprechen',
       roadmap_title: 'Unsere Community-Roadmap',
       roadmap_subtitle: 'Wir entwickeln die Plattform ständig mit Funktionen weiter, die Ihnen dienen.',
       footer_text: '© 2025 TSK — Sport für alle, vereinfacht.',
       contact_title: 'Kontaktieren Sie uns',
       contact_subtitle: 'Haben Sie eine Frage, einen Vorschlag oder benötigen Sie Hilfe? Unser Team ist hier, um Ihnen zu antworten.',
       contact_reason_player: 'Ich bin ein Spieler / Elternteil',
-      contact_reason_coach: 'Ich bin ein Trainer / Verein',
+      contact_reason_coach: 'Ich bin ein Trainer',
+      contact_reason_club: 'Ich vertrete einen Verein',
       contact_reason_organizer: 'Ich bin ein Veranstalter',
-      contact_reason_concierge: 'Ich möchte mehr über Concierge-Dienste erfahren',
+      contact_reason_accompagnement: 'Ich möchte mehr über die Unterstützungsdienste erfahren',
       contact_reason_other: 'Andere',
       contact_name: 'Ihr Name',
       contact_email: 'Ihre E-Mail',
@@ -323,6 +386,10 @@ const copy = (lang) => {
       contact_message: 'Ihre Nachricht',
       contact_send: 'Nachricht senden',
       contact_success: 'Vielen Dank! Ihre Nachricht wurde gesendet. Wir werden uns so schnell wie möglich bei Ihnen melden.',
+      about_us_title: 'Unsere Mission',
+      about_us_subtitle: 'Den Sport zugänglich machen und das Potenzial jedes Athleten freisetzen.',
+      about_us_p1: 'TSK Sport entstand aus einer gemeinsamen Leidenschaft für den Sport und einer einfachen Beobachtung: Der Zugang zu Sportinformationen und -möglichkeiten ist fragmentiert und komplex. Unsere Plattform zielt darauf ab, den Zugang zur sportlichen Entwicklung zu zentralisieren, zu vereinfachen und zu demokratisieren.',
+      about_us_p2: 'Wir verbinden Spieler, Trainer, Vereine und Organisatoren, um ein förderliches Ökosystem zu schaffen, in dem Talent gedeihen kann. Durch unsere Suchwerkzeuge, Ranglisten und Dienstleistungen unterstützen wir jeden Akteur in der Sportwelt auf seinem Weg zur Exzellenz.',
       auth_login_title: 'In Ihr Konto einloggen',
       auth_signup_title: 'Ein TSK-Konto erstellen',
       auth_email: 'E-Mail-Adresse',
@@ -341,7 +408,7 @@ const copy = (lang) => {
       alt_logo: 'TSK Logo',
       alt_hero: 'Junger Athlet vor dem Wettkampf',
       alt_organizers_bg: 'Luftaufnahme eines Sportturniers',
-      alt_concierge_bg: 'Planungsschreibtisch',
+      alt_accompagnement_bg: 'Planungstisch',
       alt_map_placeholder: 'Kartenansicht bald verfügbar'
     }
   };
@@ -351,27 +418,26 @@ const copy = (lang) => {
 // --- Locales util ---
 const locales = { fr: 'fr-FR', en: 'en-US', es: 'es-ES', de: 'de-DE' };
 
-// --- Mock Data (avec Travel Teams ajoutés) ---
+// --- Mock Data ---
 const allOpportunities = [
   { id: 1, type: 'Tournoi', name: 'La Roda Future Stars', sport: 'Basketball', level: 'Elite', country: 'Espagne', continent: 'Europe', date: '2025-07-15', gender: 'Masculin', category: 'U16', ageGroup: 'Formation' },
   { id: 2, type: 'Tournoi', name: 'Bataille d’Alsace', sport: 'Basketball', level: 'Elite', country: 'France', continent: 'Europe', date: '2025-05-20', gender: 'Féminin', category: 'U15', ageGroup: 'Formation' },
   { id: 3, type: 'Tournoi', name: 'Paris Youth Cup', sport: 'Football', level: 'Competition', country: 'France', continent: 'Europe', date: '2025-06-10', gender: 'Masculin', category: 'U15', ageGroup: 'Formation' },
-  { id: 4, type: 'Camp', name: 'Berlin Skills Camp', sport: 'Tennis', level: 'Decouverte', country: 'Allemagne', continent: 'Europe', date: '2025-08-01', gender: 'Mixte', category: 'U14', ageGroup: 'Pré-formation' },
+  { id: 4, type: 'Camp', name: 'Berlin Skills Camp', sport: 'Tennis', level: 'Loisir', country: 'Allemagne', continent: 'Europe', date: '2025-08-01', gender: 'Mixte', category: 'U14', ageGroup: 'Pré-formation' },
   { id: 5, type: 'Académie', name: 'Madrid Tennis Academy', sport: 'Tennis', level: 'Competition', country: 'Espagne', continent: 'Europe', date: '2025-09-05', gender: 'Féminin', category: 'U16', ageGroup: 'Formation' },
   { id: 6, type: 'Tournoi', name: 'Munich Football Fest', sport: 'Football', level: 'Elite', country: 'Allemagne', continent: 'Europe', date: '2025-07-22', gender: 'Masculin', category: 'U14', ageGroup: 'Pré-formation' },
-  { id: 7, type: 'Camp', name: 'Lyon Hoops Camp', sport: 'Basketball', level: 'Decouverte', country: 'France', continent: 'Europe', date: '2025-06-30', gender: 'Mixte', category: 'U14', ageGroup: 'Pré-formation' },
+  { id: 7, type: 'Camp', name: 'Lyon Hoops Camp', sport: 'Basketball', level: 'Loisir', country: 'France', continent: 'Europe', date: '2025-06-30', gender: 'Mixte', category: 'U14', ageGroup: 'Pré-formation' },
   { id: 8, type: 'Académie', name: 'IMG Academy', sport: 'Football', level: 'Elite', country: 'USA', continent: 'Amérique du Nord', date: '2025-08-10', gender: 'Masculin', category: 'U17', ageGroup: 'Formation' },
-  { id: 9, type: 'Coach', name: 'Coach Martin - Shooting Expert', sport: 'Basketball', level: 'Elite', country: 'France', continent: 'Europe', date: '2025-01-01', gender: 'Mixte', category: 'all', ageGroup: 'all' },
-  { id: 10, type: 'Lieu', name: 'Hoops Factory Paris', sport: 'Basketball', level: 'all', country: 'France', continent: 'Europe', date: '2025-01-01', gender: 'Mixte', category: 'all', ageGroup: 'all' },
+  { id: 9, type: 'Coach personnel', name: 'Coach Martin - Shooting Expert', sport: 'Basketball', level: 'Elite', country: 'France', continent: 'Europe', date: '2025-01-01', gender: 'Mixte', category: 'all', ageGroup: 'all' },
+  { id: 10, type: 'Lieu / Infrastructure', name: 'Hoops Factory Paris', sport: 'Basketball', level: 'all', country: 'France', continent: 'Europe', date: '2025-01-01', gender: 'Mixte', category: 'all', ageGroup: 'all' },
   { id: 11, type: 'Tournoi', name: 'Toronto Youth Games', sport: 'Football', level: 'Competition', country: 'Canada', continent: 'Amérique du Nord', date: '2025-07-20', gender: 'Mixte', category: 'U12', ageGroup: 'Pré-formation' },
-  { id: 12, type: 'Camp', name: 'Rio de Janeiro Beach Soccer', sport: 'Football', level: 'Decouverte', country: 'Brésil', continent: 'Amérique du Sud', date: '2025-08-05', gender: 'Masculin', category: 'U18', ageGroup: 'Formation' },
+  { id: 12, type: 'Camp', name: 'Rio de Janeiro Beach Soccer', sport: 'Football', level: 'Loisir', country: 'Brésil', continent: 'Amérique du Sud', date: '2025-08-05', gender: 'Masculin', category: 'U18', ageGroup: 'Formation' },
   { id: 13, type: 'Tournoi', name: 'London Premier Cup', sport: 'Football', level: 'Elite', country: 'Angleterre', continent: 'Europe', date: '2025-06-15', gender: 'Masculin', category: 'U19', ageGroup: 'Formation' },
   { id: 14, type: 'Académie', name: 'Sydney Sports Academy', sport: 'Tennis', level: 'Elite', country: 'Australie', continent: 'Océanie', date: '2025-01-10', gender: 'Mixte', category: 'U21', ageGroup: 'Formation' },
   { id: 15, type: 'Camp', name: 'Shanghai Basketball Camp', sport: 'Basketball', level: 'Competition', country: 'Chine', continent: 'Asie', date: '2025-07-25', gender: 'Masculin', category: 'U20', ageGroup: 'Formation' },
   { id: 16, type: 'Tournoi', name: 'Tokyo Junior Masters', sport: 'Tennis', level: 'Elite', country: 'Japon', continent: 'Asie', date: '2025-04-10', gender: 'Féminin', category: 'U18', ageGroup: 'Formation' },
   { id: 17, type: 'Tournoi', name: 'Belgrade Future Stars', sport: 'Basketball', level: 'Elite', country: 'Serbie', continent: 'Europe', date: '2025-08-20', gender: 'Masculin', category: 'U13', ageGroup: 'Pré-formation' },
-  { id: 18, type: 'Tournoi', name: 'Mini Basket Tournoi', sport: 'Basketball', level: 'Decouverte', country: 'France', continent: 'Europe', date: '2025-09-15', gender: 'Mixte', category: 'U11', ageGroup: 'Pré-formation' },
-  // Travel Teams
+  { id: 18, type: 'Tournoi', name: 'Mini Basket Tournoi', sport: 'Basketball', level: 'Loisir', country: 'France', continent: 'Europe', date: '2025-09-15', gender: 'Mixte', category: 'U11', ageGroup: 'Pré-formation' },
   { id: 19, type: 'Travel Team', name: 'TSK Select U16 Europe', sport: 'Basketball', level: 'Elite', country: 'France', continent: 'Europe', date: '2025-07-05', gender: 'Masculin', category: 'U16', ageGroup: 'Formation' },
   { id: 20, type: 'Travel Team', name: 'TSK Elite Showcase U15', sport: 'Football', level: 'Competition', country: 'Espagne', continent: 'Europe', date: '2025-06-25', gender: 'Mixte', category: 'U15', ageGroup: 'Formation' },
 ];
@@ -404,8 +470,24 @@ const SecondaryBtn = ({ children, onClick, ...rest }) => (
 const CardBase = ({ children, className = '' }) => <div className={`rounded-xl border border-slate-200 bg-white ${className}`}>{children}</div>;
 
 // --- Pages ---
+const QuiSommesNousPage = ({ T }) => (
+  <section id="about-us" className="py-20 bg-slate-50">
+    <div className="mx-auto max-w-3xl px-4">
+      <div className="text-center">
+        <h2 className="text-3xl font-bold text-slate-900">{T.about_us_title}</h2>
+        <p className="mt-4 text-lg text-slate-600">{T.about_us_subtitle}</p>
+      </div>
+      <CardBase className="mt-12 p-8">
+        <div className="text-left space-y-4 text-slate-700">
+          <p>{T.about_us_p1}</p>
+          <p>{T.about_us_p2}</p>
+        </div>
+      </CardBase>
+    </div>
+  </section>
+);
+
 const ContactPage = ({ T }) => {
-  // Soumission native Netlify pour reCAPTCHA
   return (
     <section id="contact" className="py-20 bg-slate-50">
       <div className="mx-auto max-w-2xl px-4 text-center">
@@ -424,8 +506,9 @@ const ContactPage = ({ T }) => {
               <select name="subject" className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-orange-500 focus:ring-orange-500">
                 <option>{T.contact_reason_player}</option>
                 <option>{T.contact_reason_coach}</option>
+                <option>{T.contact_reason_club}</option>
                 <option>{T.contact_reason_organizer}</option>
-                <option>{T.contact_reason_concierge}</option>
+                <option>{T.contact_reason_accompagnement}</option>
                 <option>{T.contact_reason_other}</option>
               </select>
             </div>
@@ -672,9 +755,9 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
     setOpportunities(filtered);
   }, [filters]);
 
-  const types = { 'Tournoi': T.type_tournament, 'Camp': T.type_camp, 'Académie': T.type_academy, 'Coach': T.type_coach, 'Lieu': T.type_venue, 'Travel Team': T.type_travel_team };
+  const types = { 'Tournoi': T.type_tournament, 'Camp': T.type_camp, 'Académie': T.type_academy, 'Coach personnel': T.type_coach, 'Lieu / Infrastructure': T.type_venue, 'Travel Team': T.type_travel_team };
   const sports = [...new Set(allOpportunities.map(t => t.sport))];
-  const levels = ['Decouverte', 'Competition', 'Elite'];
+  const levels = ['Loisir', 'Competition', 'Elite'];
   const countriesByContinent = allOpportunities.reduce((acc, curr) => {
     if (curr.continent) {
       if (!acc[curr.continent]) acc[curr.continent] = [];
@@ -774,6 +857,16 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
               <input type="date" name="dateEnd" value={filters.dateEnd} onChange={handleFilterChange} className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-orange-500 focus:ring-orange-500" />
             </div>
           </div>
+           {filters.type === 'Travel Team' && (
+            <p className="mt-4 text-xs text-slate-500">
+              <span aria-hidden>ⓘ</span> {T.contextual_help_travel_team}
+            </p>
+          )}
+          {filters.type === 'Lieu / Infrastructure' && (
+            <p className="mt-4 text-xs text-slate-500">
+              <span aria-hidden>ⓘ</span> {T.contextual_help_venue}
+            </p>
+          )}
         </CardBase>
         <div className="mt-8 flex justify-center">
           <ViewToggle />
@@ -792,7 +885,7 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
                   {t.level !== 'all' && <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
                     t.level === 'Elite' ? 'bg-red-100 text-red-800' :
                     t.level === 'Competition' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-green-100 text-green-800'
+                    'bg-green-100 text-green-800' // Loisir
                   }`}>{t.level}</span>}
                 </div>
                 {t.date !== '2025-01-01' && (
@@ -963,8 +1056,33 @@ const ForCoaches = ({ T }) => (
   </section>
 );
 
+const ForClubs = ({ T }) => (
+    <section id="clubs" className="py-20 bg-slate-50">
+      <div className="mx-auto max-w-7xl px-4 grid gap-8 md:grid-cols-2 items-center">
+        <div>
+          <h2 className="text-3xl font-bold text-slate-900">{T.clubs_title}</h2>
+          <p className="mt-4 text-slate-600">{T.clubs_subtitle}</p>
+          <div className="mt-6 space-y-3 text-slate-700">
+            <p><strong>{T.clubs_s1_title} — </strong>{T.clubs_s1_text}</p>
+            <p><strong>{T.clubs_s2_title} — </strong>{T.clubs_s2_text}</p>
+          </div>
+          <div className="mt-8">
+            <PrimaryBtn onClick={() => { document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' }); }}>
+              {T.clubs_cta}
+            </PrimaryBtn>
+          </div>
+        </div>
+        <CardBase className="p-8">
+          <p className="text-slate-600">
+            {T.clubs_tip}
+          </p>
+        </CardBase>
+      </div>
+    </section>
+  );
+
 const ForOrganizers = ({ T }) => (
-  <section id="organizers" className="py-20 bg-slate-50">
+  <section id="organizers" className="py-20">
     <div className="mx-auto max-w-7xl px-4">
       <div className="grid md:grid-cols-2 gap-12 items-center">
         <div className="text-center md:text-left">
@@ -972,7 +1090,7 @@ const ForOrganizers = ({ T }) => (
           <p className="mt-4 max-w-xl mx-auto md:mx-0 text-slate-600">{T.organizers_subtitle}</p>
           <div className="mt-6 flex gap-4 justify-center md:justify-start">
             <PrimaryBtn onClick={() => { alert('Redirection vers le portail organisateur'); }}>{T.organizers_standard_cta}</PrimaryBtn>
-            <SecondaryBtn onClick={() => { document.getElementById('concierge')?.scrollIntoView({ behavior: 'smooth' }); }}>Services Premium</SecondaryBtn>
+            <SecondaryBtn onClick={() => { document.getElementById('accompagnement')?.scrollIntoView({ behavior: 'smooth' }); }}>Services Premium</SecondaryBtn>
           </div>
         </div>
         <div className="relative h-80 rounded-xl overflow-hidden">
@@ -983,30 +1101,30 @@ const ForOrganizers = ({ T }) => (
   </section>
 );
 
-const Concierge = ({ T }) => (
-  <section id="concierge" className="py-20 bg-slate-900 text-white relative overflow-hidden">
+const Accompagnement = ({ T }) => (
+  <section id="accompagnement" className="py-20 bg-slate-900 text-white relative overflow-hidden">
     <div className="absolute inset-0">
-      <img src="/concierge-background.png" className="w-full h-full object-cover opacity-20" alt={T.alt_concierge_bg} onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src='https://placehold.co/1920x1080/1e293b/f8fafc?text=Strategy'; }}/>
+      <img src="/concierge-background.png" className="w-full h-full object-cover opacity-20" alt={T.alt_accompagnement_bg} onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src='https://placehold.co/1920x1080/1e293b/f8fafc?text=Strategy'; }}/>
     </div>
     <div className="relative mx-auto max-w-7xl px-4 text-center">
-      <h2 className="text-4xl font-bold" style={{ fontFamily: "'Playfair Display', serif" }}>{T.concierge_section_title}</h2>
-      <p className="mt-4 max-w-3xl mx-auto text-slate-300">{T.concierge_section_subtitle}</p>
+      <h2 className="text-4xl font-bold" style={{ fontFamily: "'Playfair Display', serif" }}>{T.accompagnement_section_title}</h2>
+      <p className="mt-4 max-w-3xl mx-auto text-slate-300">{T.accompagnement_section_subtitle}</p>
       <div className="mt-12 grid md:grid-cols-3 gap-8 text-left">
         <div className="p-6 border border-slate-700 rounded-lg bg-slate-800/50 backdrop-blur-sm">
-          <h3 className="text-lg font-semibold text-orange-400">{T.concierge_for_players_title}</h3>
-          <p className="mt-2 text-sm text-slate-400">{T.concierge_for_players_text}</p>
+          <h3 className="text-lg font-semibold text-orange-400">{T.accompagnement_for_players_title}</h3>
+          <p className="mt-2 text-sm text-slate-400">{T.accompagnement_for_players_text}</p>
         </div>
         <div className="p-6 border border-slate-700 rounded-lg bg-slate-800/50 backdrop-blur-sm">
-          <h3 className="text-lg font-semibold text-orange-400">{T.concierge_for_coaches_title}</h3>
-          <p className="mt-2 text-sm text-slate-400">{T.concierge_for_coaches_text}</p>
+          <h3 className="text-lg font-semibold text-orange-400">{T.accompagnement_for_coaches_title}</h3>
+          <p className="mt-2 text-sm text-slate-400">{T.accompagnement_for_coaches_text}</p>
         </div>
         <div className="p-6 border border-slate-700 rounded-lg bg-slate-800/50 backdrop-blur-sm">
-          <h3 className="text-lg font-semibold text-orange-400">{T.concierge_for_organizers_title}</h3>
-          <p className="mt-2 text-sm text-slate-400">{T.concierge_for_organizers_text}</p>
+          <h3 className="text-lg font-semibold text-orange-400">{T.accompagnement_for_organizers_title}</h3>
+          <p className="mt-2 text-sm text-slate-400">{T.accompagnement_for_organizers_text}</p>
         </div>
       </div>
       <div className="mt-12">
-        <PrimaryBtn onClick={() => { alert('Redirection vers le formulaire de contact Conciergerie'); }}>{T.concierge_cta}</PrimaryBtn>
+        <PrimaryBtn onClick={() => { alert('Redirection vers le formulaire de contact Accompagnement'); }}>{T.accompagnement_cta}</PrimaryBtn>
       </div>
     </div>
   </section>
@@ -1024,7 +1142,6 @@ const Roadmap = ({ T }) => {
 
       const ctx = chartRef.current.getContext('2d');
       
-      // Nouvelle structure de données pour la roadmap stratégique
       const roadmapData = [
         { task: 'Migration Next.js & SEO Technique', pillar: 'Fondation', start: 0, end: 3 },
         { task: 'Optimisation Vitesse & Core Web Vitals', pillar: 'Fondation', start: 1, end: 4 },
@@ -1108,13 +1225,14 @@ const HomePage = ({ T, initialFilter, clearInitialFilter, lang }) => (
     <Rankings T={T} />
     <ForPlayers T={T} />
     <ForCoaches T={T} />
+    <ForClubs T={T} />
     <ForOrganizers T={T} />
-    <Concierge T={T} />
+    <Accompagnement T={T} />
     <Roadmap T={T} />
   </>
 );
 
-// --- Header amélioré a11y ---
+// --- Header ---
 const Header = ({ T, lang, setLang, navigateTo, currentPage, user, onLogout, onFilterSelect }) => {
   const [opportunityDropdown, setOpportunityDropdown] = useState(false);
   const [personaDropdown, setPersonaDropdown] = useState(false);
@@ -1204,12 +1322,14 @@ const Header = ({ T, lang, setLang, navigateTo, currentPage, user, onLogout, onF
                   <div className="py-1">
                     <button role="menuitem" onClick={() => handleScrollTo('players')} className="block w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">{T.nav_players}</button>
                     <button role="menuitem" onClick={() => handleScrollTo('coaches')} className="block w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">{T.nav_coaches}</button>
+                    <button role="menuitem" onClick={() => handleScrollTo('clubs')} className="block w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">{T.nav_clubs}</button>
                     <button role="menuitem" onClick={() => handleScrollTo('organizers')} className="block w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100">{T.nav_organizers}</button>
                   </div>
                 </div>
               )}
             </div>
           )}
+          <NavBtn page="about-us">{T.nav_about_us}</NavBtn>
           <NavBtn page="contact">{T.nav_contact}</NavBtn>
         </nav>
 
@@ -1267,6 +1387,7 @@ export default function App() {
 
   const renderPage = () => {
     switch (currentPage) {
+      case 'about-us': return <QuiSommesNousPage T={T} />;
       case 'contact': return <ContactPage T={T} />;
       case 'auth': return <AuthPage T={T} onLogin={handleLogin} navigateTo={setCurrentPage} />;
       case 'dashboard': return user ? <DashboardPage T={T} user={user} navigateTo={setCurrentPage} /> : <HomePage T={T} initialFilter={initialSearchFilter} clearInitialFilter={clearInitialFilter} lang={lang} />;
@@ -1285,3 +1406,4 @@ export default function App() {
     </div>
   );
 }
+
