@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import CardBase from "../ui/CardBase";
 import { locales } from "../../i18n/i18n";
 import { fetchOpportunities } from "../../services/mockApi";
@@ -10,6 +11,12 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [view, setView] = useState('list');
+  const [statusMessage, setStatusMessage] = useState('');
+  const [lastRequestOptions, setLastRequestOptions] = useState({});
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const formatter = useMemo(() => locales[lang] || locales.fr, [lang]);
 
   useEffect(() => {
     if (initialFilter) {
@@ -19,28 +26,49 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
   }, [initialFilter, clearInitialFilter]);
 
   useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const restoredFilters = {};
+    params.forEach((value, key) => {
+      if (Object.prototype.hasOwnProperty.call(filters, key)) restoredFilters[key] = value;
+    });
+    if (Object.keys(restoredFilters).length) {
+      setFilters((prev) => ({ ...prev, ...restoredFilters }));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
     let active = true;
+    const requestOptions = { delay: 250 };
+    setLastRequestOptions(requestOptions);
     setLoading(true);
-    fetchOpportunities()
+    setError(null);
+    setStatusMessage('Mise à jour des opportunités');
+    fetchOpportunities(requestOptions)
       .then((data) => {
         if (!active) return;
         setAllData(data);
         setOpportunities(data);
-        setLoading(false);
+        setStatusMessage(`${data.length} opportunités chargées`);
       })
       .catch(() => {
         if (!active) return;
         setError('Impossible de charger les opportunités pour le moment.');
+        setStatusMessage('Erreur lors du chargement');
+      })
+      .finally(() => {
+        if (!active) return;
         setLoading(false);
       });
     return () => {
       active = false;
     };
-  }, []);
+  }, [location.key]);
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
     setFilters(prev => ({ ...prev, [name]: value }));
+    setStatusMessage(`Filtre ${name} mis à jour`);
   };
 
   useEffect(() => {
@@ -62,7 +90,99 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
     if (filters.date) filtered = filtered.filter(t => new Date(t.date) >= new Date(filters.date));
     if (filters.dateEnd) filtered = filtered.filter(t => new Date(t.date) <= new Date(filters.dateEnd));
     setOpportunities(filtered);
-  }, [filters, allData]);
+    const params = new URLSearchParams();
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value && value !== 'all') params.set(key, value);
+    });
+    navigate({ pathname: location.pathname, search: params.toString() }, { replace: true, state: location.state });
+  }, [filters, allData, navigate, location.pathname, location.state]);
+
+  useEffect(() => {
+    if (!loading && location.state?.scrollPosition >= 0) {
+      window.scrollTo(0, location.state.scrollPosition);
+    }
+    if (location.state?.view) setView(location.state.view);
+    if (location.state?.filters) setFilters((prev) => ({ ...prev, ...location.state.filters }));
+  }, [loading, location.state]);
+
+  const handleRetry = () => {
+    setStatusMessage('Nouvelle tentative de chargement');
+    setError(null);
+    setLoading(true);
+    fetchOpportunities(lastRequestOptions)
+      .then((data) => {
+        setAllData(data);
+        setOpportunities(data);
+        setStatusMessage('Opportunités rechargées');
+      })
+      .catch(() => {
+        setError('Impossible de charger les opportunités pour le moment.');
+        setStatusMessage('Erreur lors du chargement');
+      })
+      .finally(() => setLoading(false));
+  };
+
+  const handleResetEssentialFilters = () => {
+    setFilters((prev) => ({
+      ...prev,
+      type: 'all',
+      sport: 'all',
+      country: 'all',
+      gender: 'all',
+      category: 'all',
+      date: '',
+      dateEnd: '',
+    }));
+    setStatusMessage('Filtres essentiels réinitialisés');
+  };
+
+  const handleOpportunityClick = (opportunity) => {
+    setStatusMessage(`Ouverture de ${opportunity.name}`);
+    navigate(`/opportunity/${opportunity.id}`, {
+      state: {
+        from: `${location.pathname}${location.search}`,
+        scrollPosition: window.scrollY,
+        filters,
+        view,
+      },
+    });
+  };
+
+  const EmptyState = () => (
+    <CardBase className="col-span-full p-6 text-center text-slate-700" role="status" aria-live="polite">
+      <p className="font-semibold">Aucune opportunité trouvée</p>
+      <p className="mt-2 text-sm">Essayez les ajustements suivants pour relancer votre recherche :</p>
+      <div className="mt-4 space-y-2">
+        <button
+          className="block w-full rounded-md border border-slate-200 px-4 py-2 text-sm hover:bg-slate-50"
+          onClick={() => handleFilterChange({ target: { name: 'country', value: 'all' } })}
+        >
+          Élargir le pays
+        </button>
+        <button
+          className="block w-full rounded-md border border-slate-200 px-4 py-2 text-sm hover:bg-slate-50"
+          onClick={() => handleFilterChange({ target: { name: 'type', value: 'all' } })}
+        >
+          Réinitialiser le type
+        </button>
+      </div>
+      <button
+        className="mt-4 inline-flex items-center justify-center rounded-md bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-700"
+        onClick={handleResetEssentialFilters}
+      >
+        Réinitialiser les filtres essentiels
+      </button>
+    </CardBase>
+  );
+
+  const OpportunitySkeleton = () => (
+    <CardBase className="p-6 animate-pulse" aria-hidden>
+      <div className="h-4 w-24 bg-slate-200 rounded" />
+      <div className="mt-4 h-6 w-3/4 bg-slate-200 rounded" />
+      <div className="mt-2 h-4 w-1/2 bg-slate-200 rounded" />
+      <div className="mt-4 h-4 w-32 bg-slate-200 rounded" />
+    </CardBase>
+  );
 
   const types = { 'Tournoi': T.type_tournament, 'Camp': T.type_camp, 'Académie': T.type_academy, 'Coach personnel': T.type_coach, 'Lieu / Infrastructure': T.type_venue, 'Travel Team': T.type_travel_team };
   const sports = [...new Set(allData.map(t => t.sport))];
@@ -85,10 +205,22 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
 
   const ViewToggle = () => (
     <div className="flex items-center justify-center gap-2" role="tablist" aria-label="Mode d'affichage">
-      <button onClick={() => setView('list')} role="tab" aria-selected={view === 'list'} className={`px-4 py-2 text-sm font-semibold rounded-md ${view === 'list' ? 'bg-orange-600 text-white' : 'bg-white text-slate-600'}`}>
+      <button
+        onClick={() => setView('list')}
+        role="tab"
+        aria-selected={view === 'list'}
+        disabled={loading}
+        className={`px-4 py-2 text-sm font-semibold rounded-md ${view === 'list' ? 'bg-orange-600 text-white' : 'bg-white text-slate-600'} ${loading ? 'opacity-60' : ''}`}
+      >
         {T.view_list}
       </button>
-      <button onClick={() => setView('map')} role="tab" aria-selected={view === 'map'} className={`px-4 py-2 text-sm font-semibold rounded-md ${view === 'map' ? 'bg-orange-600 text-white' : 'bg-white text-slate-600'}`}>
+      <button
+        onClick={() => setView('map')}
+        role="tab"
+        aria-selected={view === 'map'}
+        disabled={loading}
+        className={`px-4 py-2 text-sm font-semibold rounded-md ${view === 'map' ? 'bg-orange-600 text-white' : 'bg-white text-slate-600'} ${loading ? 'opacity-60' : ''}`}
+      >
         {T.view_map}
       </button>
     </div>
@@ -101,7 +233,8 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
           <h2 className="text-3xl font-bold text-slate-900">{T.search_title}</h2>
           <p className="mt-4 text-slate-600">{T.search_subtitle}</p>
         </div>
-        <CardBase className="mt-12 p-6">
+        <div className="sr-only" aria-live="polite">{statusMessage || error}</div>
+        <CardBase className="mt-12 p-6" aria-busy={loading}>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="sm:col-span-2 lg:col-span-4">
               <label className="block text-sm font-medium text-slate-700">{T.search_keyword}</label>
@@ -182,33 +315,49 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
         </div>
 
         {loading ? (
-          <p className="mt-8 text-center text-slate-600">{T.loading || 'Chargement en cours...'}</p>
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" aria-live="polite" role="status">
+            {[...Array(3)].map((_, idx) => <OpportunitySkeleton key={idx} />)}
+          </div>
         ) : error ? (
-          <p className="mt-8 text-center text-red-600">{error}</p>
+          <div className="mt-8 text-center text-slate-700" role="alert">
+            <p className="text-red-600">{error}</p>
+            <button
+              onClick={handleRetry}
+              className="mt-3 inline-flex items-center justify-center rounded-md bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-700"
+            >
+              Réessayer
+            </button>
+          </div>
         ) : view === 'list' ? (
           <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {opportunities.length > 0 ? opportunities.map(t => (
-              <CardBase key={t.id} className="p-6 transition hover:shadow-lg hover:-translate-y-1">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-xs font-semibold text-orange-600">{t.type}</p>
-                    <h3 className="mt-1 font-semibold text-slate-800">{t.name}</h3>
-                    <p className="text-xs text-slate-500">{t.country} • {t.sport} {t.category !== 'all' ? `• ${t.category}` : ''}</p>
+              <button
+                key={t.id}
+                onClick={() => handleOpportunityClick(t)}
+                className="text-left"
+              >
+                <CardBase className="p-6 transition hover:shadow-lg hover:-translate-y-1">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="text-xs font-semibold text-orange-600">{t.type}</p>
+                      <h3 className="mt-1 font-semibold text-slate-800">{t.name}</h3>
+                      <p className="text-xs text-slate-500">{t.country} • {t.sport} {t.category !== 'all' ? `• ${t.category}` : ''}</p>
+                    </div>
+                    {t.level !== 'all' && <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                      t.level === 'Elite' ? 'bg-red-100 text-red-800' :
+                      t.level === 'Competition' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-green-100 text-green-800'
+                    }`}>{t.level}</span>}
                   </div>
-                  {t.level !== 'all' && <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                    t.level === 'Elite' ? 'bg-red-100 text-red-800' :
-                    t.level === 'Competition' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-green-100 text-green-800'
-                  }`}>{t.level}</span>}
-                </div>
-                {t.date !== '2025-01-01' && (
-                  <p className="mt-4 text-sm text-slate-600">
-                    {new Date(t.date).toLocaleDateString(locales[lang] || locales.fr, { year: 'numeric', month: 'long', day: 'numeric' })}
-                  </p>
-                )}
-              </CardBase>
+                  {t.date !== '2025-01-01' && (
+                    <p className="mt-4 text-sm text-slate-600">
+                      {new Date(t.date).toLocaleDateString(formatter, { year: 'numeric', month: 'long', day: 'numeric' })}
+                    </p>
+                  )}
+                </CardBase>
+              </button>
             )) : (
-              <p className="col-span-full text-center text-slate-600">{T.no_results}</p>
+              <EmptyState />
             )}
           </div>
         ) : (
