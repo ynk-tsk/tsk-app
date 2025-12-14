@@ -15,4 +15,7 @@ export default defineConfig({
       'i18next': path.resolve(__dirname, 'src/shims/i18next.js'),
     },
   },
+  build: {
+    sourcemap: true,
+  },
 })
