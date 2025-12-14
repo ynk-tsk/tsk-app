@@ -11,6 +11,7 @@ import ContactPage from "./components/pages/ContactPage";
 import AuthPage from "./components/pages/AuthPage";
 import DashboardPage from "./components/pages/DashboardPage";
 import ProposeOpportunityPage from "./components/pages/ProposeOpportunityPage";
+import OpportunityDetailPage from "./components/pages/OpportunityDetailPage";
 
 export default function App() {
   const { i18n: i18nextInstance } = useTranslation();
@@ -28,7 +29,10 @@ export default function App() {
   }, [lang, location.pathname, initialSearchFilter]);
 
   const handleLanguageChange = (newLang) => { i18n.changeLanguage(newLang); };
-  const handleLogin = (userData) => { setUser(userData); navigate('/dashboard'); };
+  const handleLogin = (userData, redirectPath, state) => {
+    setUser(userData);
+    navigate(redirectPath || '/dashboard', state);
+  };
   const handleLogout = () => { setUser(null); navigate('/'); };
   const handleFilterSelect = (filter) => {
     setInitialSearchFilter(filter);
@@ -36,7 +40,7 @@ export default function App() {
     requestAnimationFrame(() => document.getElementById('search')?.scrollIntoView({ behavior: 'smooth' }));
   };
   const clearInitialFilter = () => { setInitialSearchFilter(null); };
-  const navigateTo = useCallback((path) => navigate(path), [navigate]);
+  const navigateTo = useCallback((path, options) => navigate(path, options), [navigate]);
 
   return (
     <div className="min-h-screen bg-white">
@@ -58,6 +62,10 @@ export default function App() {
           <Route path="/auth" element={<AuthPage T={T} onLogin={handleLogin} navigateTo={navigateTo} />} />
           <Route path="/dashboard" element={user ? <DashboardPage T={T} user={user} navigateTo={navigateTo} /> : <Navigate to="/" replace />} />
           <Route path="/propose" element={user ? <ProposeOpportunityPage T={T} /> : <Navigate to="/" replace />} />
+          <Route
+            path="/opportunity/:id"
+            element={<OpportunityDetailPage T={T} lang={lang} user={user} />}
+          />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

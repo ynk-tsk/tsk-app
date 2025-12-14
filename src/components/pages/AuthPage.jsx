@@ -1,14 +1,17 @@
 import React, { useState } from "react";
+import { useLocation } from "react-router-dom";
 import CardBase from "../ui/CardBase";
 import { PrimaryBtn } from "../ui/Buttons";
 
 const AuthPage = ({ T, onLogin, navigateTo }) => {
   const [isLogin, setIsLogin] = useState(true);
+  const location = useLocation();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onLogin({ email: e.target.email.value });
-    navigateTo('/dashboard');
+    const redirectTo = location.state?.redirectTo;
+    const intent = location.state?.intent;
+    onLogin({ email: e.target.email.value }, redirectTo, redirectTo ? { state: { resumedIntent: intent } } : undefined);
   };
 
   return (

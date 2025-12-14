@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react'
 
-const RouterContext = createContext({ pathname: '/', navigate: () => {} })
+const RouterContext = createContext({ pathname: '/', navigate: () => {}, params: {}, setParams: () => {} })
 
 function normalizePath(path) {
   if (!path) return '/'
@@ -10,8 +10,23 @@ function normalizePath(path) {
   return path.startsWith('/') ? path : `/${path}`
 }
 
+const matchPath = (pattern, current) => {
+  const patternParts = normalizePath(pattern).split('/')
+  const pathParts = normalizePath(current).split('/')
+  if (patternParts.length !== pathParts.length) return { matched: false, params: {} }
+  const params = {}
+  for (let i = 0; i < patternParts.length; i += 1) {
+    const segment = patternParts[i]
+    const value = pathParts[i]
+    if (segment.startsWith(':')) params[segment.slice(1)] = value
+    else if (segment !== value) return { matched: false, params: {} }
+  }
+  return { matched: true, params }
+}
+
 export function BrowserRouter({ children }) {
   const [pathname, setPathname] = useState(() => normalizePath(window.location?.pathname))
+  const [params, setParams] = useState({})
 
   useEffect(() => {
     const onPopState = () => setPathname(normalizePath(window.location?.pathname))
@@ -21,13 +36,14 @@ export function BrowserRouter({ children }) {
 
   const navigate = (to, options = {}) => {
     const target = normalizePath(to)
-    if (options.replace) window.history.replaceState({}, '', target)
-    else window.history.pushState({}, '', target)
+    const state = options.state || {}
+    if (options.replace) window.history.replaceState(state, '', target)
+    else window.history.pushState(state, '', target)
     setPathname(target)
     window.dispatchEvent(new Event('popstate'))
   }
 
-  const value = useMemo(() => ({ pathname, navigate }), [pathname])
+  const value = useMemo(() => ({ pathname, navigate, params, setParams }), [pathname, params])
 
   return <RouterContext.Provider value={value}>{children}</RouterContext.Provider>
 }
@@ -37,7 +53,12 @@ export function useNavigate() {
 }
 
 export function useLocation() {
-  return { pathname: useContext(RouterContext).pathname }
+  const router = useContext(RouterContext)
+  return { pathname: router.pathname, state: window.history.state || {}, search: window.location.search }
+}
+
+export function useParams() {
+  return useContext(RouterContext).params
 }
 
 export function Navigate({ to = '/', replace = false }) {
@@ -47,6 +68,7 @@ export function Navigate({ to = '/', replace = false }) {
 }
 
 export function Routes({ children }) {
+  const router = useContext(RouterContext)
   const location = useLocation()
   let fallback = null
   let match = null
@@ -56,8 +78,11 @@ export function Routes({ children }) {
     const { path, element } = child.props
     if (path === '*') fallback = element
     if (match) return
-    const normalizedPath = normalizePath(path)
-    if (normalizedPath === normalizePath(location.pathname)) match = element
+    const { matched, params } = matchPath(path, location.pathname)
+    if (matched) {
+      router.setParams(params)
+      match = element
+    }
   })
 
   return match ?? fallback ?? null
