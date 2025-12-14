@@ -1,20 +1,35 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react'
 
-const RouterContext = createContext({ pathname: '/', navigate: () => {}, params: {}, setParams: () => {} })
+const RouterContext = createContext({
+  location: { pathname: '/', search: '', hash: '', state: null },
+  navigate: () => {},
+  params: {},
+  setParams: () => {},
+})
+
+const safeSegment = (value, prefix = '') => {
+  if (typeof value !== 'string') return ''
+  if (!value) return ''
+  return value.startsWith(prefix) ? value : `${prefix}${value}`
+}
+
+const buildPath = ({ pathname, search, hash }) => {
+  const base = typeof pathname === 'string' && pathname.trim() ? pathname.trim() : '/'
+  const normalizedPath = base.startsWith('/') ? base : `/${base}`
+  const searchPart = safeSegment(search, '?')
+  const hashPart = safeSegment(hash, '#')
+  return `${normalizedPath}${searchPart}${hashPart}`
+}
 
 function normalizePath(to) {
   if (to == null) return '/'
 
   if (to instanceof URL) {
-    return to.pathname || '/'
+    return buildPath({ pathname: to.pathname || '/', search: to.search || '', hash: to.hash || '' })
   }
 
   if (typeof to === 'object') {
-    const pathname = typeof to.pathname === 'string' ? to.pathname : '/'
-    const search = typeof to.search === 'string' ? to.search : ''
-    const hash = typeof to.hash === 'string' ? to.hash : ''
-    const full = `${pathname}${search}${hash}`
-    return full.startsWith('/') ? full : `/${full}`
+    return buildPath({ pathname: to.pathname, search: to.search, hash: to.hash })
   }
 
   if (typeof to !== 'string') return '/'
@@ -24,57 +39,97 @@ function normalizePath(to) {
 
   if (path.startsWith('http://') || path.startsWith('https://')) {
     try {
-      return new URL(path).pathname || '/'
+      const url = new URL(path)
+      return buildPath({ pathname: url.pathname || '/', search: url.search || '', hash: url.hash || '' })
     } catch {
       return '/'
     }
   }
 
-  return path.startsWith('/') ? path : `/${path}`
+  if (path.startsWith('/')) return path
+  return `/${path}`
 }
 
-const matchPath = (pattern, current) => {
-  const patternParts = normalizePath(pattern).split('/')
-  const pathParts = normalizePath(current).split('/')
-  if (patternParts.length !== pathParts.length) return { matched: false, params: {} }
+const normalizePathname = (value) => {
+  if (typeof value !== 'string') return '/'
+  const trimmed = value.trim()
+  if (!trimmed) return '/'
+  const pathOnly = trimmed.split('?')[0].split('#')[0]
+  if (pathOnly.startsWith('/')) return pathOnly || '/'
+  return `/${pathOnly}`
+}
+
+const matchPath = (pattern, actualPath) => {
+  if (pattern === '*') return { params: {} }
+
+  const patternPath = normalizePathname(pattern)
+  const currentPath = normalizePathname(actualPath)
+
+  const patternParts = patternPath.split('/').filter(Boolean)
+  const currentParts = currentPath.split('/').filter(Boolean)
+
+  if (patternParts.length !== currentParts.length) return null
+
   const params = {}
+
   for (let i = 0; i < patternParts.length; i += 1) {
     const segment = patternParts[i]
-    const value = pathParts[i]
-    if (segment.startsWith(':')) params[segment.slice(1)] = value
-    else if (segment !== value) return { matched: false, params: {} }
+    const value = currentParts[i]
+    if (segment.startsWith(':')) {
+      params[segment.slice(1)] = value
+    } else if (segment !== value) {
+      return null
+    }
   }
-  return { matched: true, params }
+
+  return { params }
 }
 
+const parseLocation = () => ({
+  pathname: window.location.pathname || '/',
+  search: window.location.search || '',
+  hash: window.location.hash || '',
+  state: window.history.state?.__routerState ?? null,
+})
+
 export function BrowserRouter({ children }) {
-  const [pathname, setPathname] = useState(() => normalizePath(window.location?.pathname))
+  const [location, setLocation] = useState(() => parseLocation())
   const [params, setParams] = useState({})
 
   useEffect(() => {
-    const onPopState = () => setPathname(normalizePath(window.location?.pathname))
+    const onPopState = () => setLocation(parseLocation())
     window.addEventListener('popstate', onPopState)
     return () => window.removeEventListener('popstate', onPopState)
   }, [])
 
   const navigate = (to, options = {}) => {
     const target = normalizePath(to)
-
+    const targetUrl = new URL(target, window.location.origin)
     const current = `${window.location.pathname}${window.location.search}${window.location.hash}`
-    if (target === current) return
+
+    if (`${targetUrl.pathname}${targetUrl.search}${targetUrl.hash}` === current) return
+
+    const state = options.state ?? (typeof to === 'object' ? to.state : null)
+    const historyState = { __routerState: state }
 
     if (options.replace) {
-      window.history.replaceState({}, '', target)
+      window.history.replaceState(historyState, '', targetUrl.href)
     } else {
-      window.history.pushState({}, '', target)
+      window.history.pushState(historyState, '', targetUrl.href)
     }
 
-    // Ne PAS dispatcher popstate manuellement.
-    // On met à jour l’état local directement.
-    setPathname(target.split('?')[0].split('#')[0])
+    setLocation({
+      pathname: targetUrl.pathname || '/',
+      search: targetUrl.search || '',
+      hash: targetUrl.hash || '',
+      state,
+    })
   }
 
-  const value = useMemo(() => ({ pathname, navigate, params, setParams }), [pathname, params])
+  const value = useMemo(
+    () => ({ location, navigate, params, setParams }),
+    [location, params],
+  )
 
   return <RouterContext.Provider value={value}>{children}</RouterContext.Provider>
 }
@@ -84,25 +139,25 @@ export function useNavigate() {
 }
 
 export function useLocation() {
-  const router = useContext(RouterContext)
-  return { pathname: router.pathname, state: window.history.state || {}, search: window.location.search }
+  return useContext(RouterContext).location
 }
 
 export function useParams() {
   return useContext(RouterContext).params
 }
 
-export function Navigate({ to = '/', replace = false }) {
+export function Navigate({ to = '/', replace = false, state = null }) {
   const nav = useNavigate()
   const location = useLocation()
 
   useEffect(() => {
     const target = normalizePath(to)
-    const current = location.pathname
-    const targetPath = target.split('?')[0].split('#')[0]
-    if (targetPath === current) return
-    nav(to, { replace })
-  }, [nav, to, replace, location.pathname])
+    const targetUrl = new URL(target, window.location.origin)
+    const current = `${location.pathname}${location.search}${location.hash}`
+
+    if (`${targetUrl.pathname}${targetUrl.search}${targetUrl.hash}` === current) return
+    nav(to, { replace, state })
+  }, [nav, to, replace, state, location.pathname, location.search, location.hash])
 
   return null
 }
@@ -118,9 +173,9 @@ export function Routes({ children }) {
     const { path, element } = child.props
     if (path === '*') fallback = element
     if (match) return
-    const { matched, params } = matchPath(path, location.pathname)
-    if (matched) {
-      router.setParams(params)
+    const result = matchPath(path, location.pathname)
+    if (result) {
+      router.setParams(result.params)
       match = element
     }
   })
@@ -132,4 +187,4 @@ export function Route() {
   return null
 }
 
-export default { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation }
+export default { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation, useParams }
