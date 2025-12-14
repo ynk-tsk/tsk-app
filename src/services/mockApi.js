@@ -40,11 +40,23 @@ const clone = (payload) =>
     ? structuredClone(payload)
     : JSON.parse(JSON.stringify(payload));
 
-const respond = (payload, delay = 150) =>
-  new Promise((resolve) => {
-    setTimeout(() => resolve(clone(payload)), delay);
+const respond = (payload, delay = 150, shouldFail = false) =>
+  new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (shouldFail) return reject(new Error('network-error'));
+      return resolve(clone(payload));
+    }, delay);
   });
 
-export const fetchOpportunities = () => respond(mockOpportunities);
+export const fetchOpportunities = (options = {}) =>
+  respond(mockOpportunities, options.delay, options.shouldFail);
+
+export const fetchOpportunityById = (id, options = {}) => {
+  const found = mockOpportunities.find((item) => item.id === Number(id));
+  if (!found) {
+    return respond(null, options.delay, true);
+  }
+  return respond(found, options.delay, options.shouldFail);
+};
 export const fetchTeamRankings = () => respond(mockTeamRankings);
 export const fetchTournamentRankings = () => respond(mockTournamentRankings);
