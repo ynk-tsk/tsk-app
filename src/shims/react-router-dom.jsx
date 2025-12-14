@@ -59,11 +59,18 @@ export function BrowserRouter({ children }) {
 
   const navigate = (to, options = {}) => {
     const target = normalizePath(to)
+
+    const current = `${window.location.pathname}${window.location.search}${window.location.hash}`
+    if (target === current) return
+
     if (options.replace) {
       window.history.replaceState({}, '', target)
     } else {
       window.history.pushState({}, '', target)
     }
+
+    // Ne PAS dispatcher popstate manuellement.
+    // On met à jour l’état local directement.
     setPathname(target.split('?')[0].split('#')[0])
   }
 
@@ -86,8 +93,17 @@ export function useParams() {
 }
 
 export function Navigate({ to = '/', replace = false }) {
-  const navigate = useNavigate()
-  useEffect(() => { navigate(to, { replace }) }, [navigate, to, replace])
+  const nav = useNavigate()
+  const location = useLocation()
+
+  useEffect(() => {
+    const target = normalizePath(to)
+    const current = location.pathname
+    const targetPath = target.split('?')[0].split('#')[0]
+    if (targetPath === current) return
+    nav(to, { replace })
+  }, [nav, to, replace, location.pathname])
+
   return null
 }
 
