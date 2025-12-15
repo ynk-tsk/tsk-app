@@ -3,6 +3,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import CardBase from "../ui/CardBase";
 import { locales } from "../../i18n/i18n";
 import { fetchOpportunities } from "../../services/mockApi";
+import { useUserData } from "../../hooks/useUserData";
+import { PrimaryBtn } from "../ui/Buttons";
 
 const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
   const [filters, setFilters] = useState({ type: 'all', sport: 'all', level: 'all', country: 'all', date: '', dateEnd: '', gender: 'all', category: 'all', keyword: '' });
@@ -15,6 +17,14 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
   const [lastRequestOptions, setLastRequestOptions] = useState({});
   const navigate = useNavigate();
   const location = useLocation();
+  const {
+    data: userData,
+    saveSearch,
+    removeSavedSearch,
+    isOpportunitySaved,
+    toggleSavedOpportunity,
+    user,
+  } = useUserData();
 
   const formatter = useMemo(() => locales[lang] || locales.fr, [lang]);
 
@@ -148,6 +158,39 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
     });
   };
 
+  const handleSaveSearch = () => {
+    const labelParts = [];
+    if (filters.keyword) labelParts.push(filters.keyword);
+    if (filters.type !== 'all') labelParts.push(filters.type);
+    if (filters.country !== 'all') labelParts.push(filters.country);
+    const label = labelParts.join(' • ') || T.save_search_action;
+    saveSearch(filters, { label });
+    setStatusMessage('Recherche sauvegardée localement');
+  };
+
+  const handleApplySavedSearch = (search) => {
+    setFilters((prev) => ({ ...prev, ...search.filters }));
+    setStatusMessage('Filtres restaurés depuis vos favoris');
+    navigate({ pathname: location.pathname, search: '' }, { replace: true });
+  };
+
+  const handleRemoveSearch = (id) => {
+    removeSavedSearch(id);
+    setStatusMessage('Recherche supprimée de cet appareil');
+  };
+
+  const handleToggleSaveOpportunity = (opportunity, event) => {
+    event?.stopPropagation();
+    const saved = toggleSavedOpportunity(opportunity);
+    setStatusMessage(saved ? 'Opportunité sauvegardée localement' : 'Opportunité retirée de vos favoris');
+  };
+
+  const lastVisitLabel = userData.lastVisitTimestamp
+    ? new Date(userData.lastVisitTimestamp).toLocaleString(formatter, { year: 'numeric', month: 'short', day: 'numeric' })
+    : '';
+
+  const hasContinuityPrompt = !user && (userData.savedOpportunities.length > 0 || userData.savedSearches.length > 0);
+
   const EmptyState = () => (
     <CardBase className="col-span-full p-6 text-center text-slate-700" role="status" aria-live="polite">
       <p className="font-semibold">Aucune opportunité trouvée</p>
@@ -232,9 +275,14 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
         <div className="text-center">
           <h2 className="text-3xl font-bold text-slate-900">{T.search_title}</h2>
           <p className="mt-4 text-slate-600">{T.search_subtitle}</p>
+          {lastVisitLabel && <p className="mt-2 text-xs text-slate-500">Dernière visite : {lastVisitLabel}</p>}
         </div>
         <div className="sr-only" aria-live="polite">{statusMessage || error}</div>
         <CardBase className="mt-12 p-6" aria-busy={loading}>
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <p className="text-sm text-slate-600">{T.save_search_action}</p>
+            <PrimaryBtn onClick={handleSaveSearch} className="w-full md:w-auto" type="button">{T.save_search_action}</PrimaryBtn>
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="sm:col-span-2 lg:col-span-4">
               <label className="block text-sm font-medium text-slate-700">{T.search_keyword}</label>
@@ -310,6 +358,45 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
             </p>
           )}
         </CardBase>
+        {userData.savedSearches.length > 0 && (
+          <div className="mt-6">
+            <h3 className="text-lg font-semibold text-slate-800">{T.saved_searches_title}</h3>
+            <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+              {userData.savedSearches.map((search) => (
+                <CardBase key={search.id} className="p-4 flex flex-col gap-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <p className="font-semibold text-slate-800">{search.label}</p>
+                      <p className="text-xs text-slate-500 truncate">
+                        {Object.entries(search.filters).filter(([key, value]) => value && value !== 'all').map(([key, value]) => `${key}: ${value}`).join(' • ') || T.filter_all}
+                      </p>
+                    </div>
+                    <button className="text-xs text-red-600 hover:underline" onClick={() => handleRemoveSearch(search.id)}>
+                      Supprimer
+                    </button>
+                  </div>
+                  <div className="flex gap-2 flex-wrap">
+                    <PrimaryBtn onClick={() => handleApplySavedSearch(search)} className="text-sm">
+                      Relancer
+                    </PrimaryBtn>
+                  </div>
+                </CardBase>
+              ))}
+            </div>
+          </div>
+        )}
+        {hasContinuityPrompt && (
+          <CardBase className="mt-4 p-4 bg-orange-50 border border-orange-200 flex flex-col gap-2">
+            <p className="font-semibold text-orange-800">{T.continuity_cta_title}</p>
+            <p className="text-sm text-orange-700">{T.continuity_cta_desc}</p>
+            <PrimaryBtn
+              onClick={() => navigate('/auth', { state: { redirectTo: location.pathname, intent: 'continuity' } })}
+              className="w-full md:w-auto"
+            >
+              {T.cta_keep_everywhere}
+            </PrimaryBtn>
+          </CardBase>
+        )}
         <div className="mt-8 flex justify-center">
           <ViewToggle />
         </div>
@@ -337,17 +424,26 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
                 className="text-left"
               >
                 <CardBase className="p-6 transition hover:shadow-lg hover:-translate-y-1">
-                  <div className="flex justify-between items-start">
+                  <div className="flex justify-between items-start gap-3">
                     <div>
                       <p className="text-xs font-semibold text-orange-600">{t.type}</p>
                       <h3 className="mt-1 font-semibold text-slate-800">{t.name}</h3>
                       <p className="text-xs text-slate-500">{t.country} • {t.sport} {t.category !== 'all' ? `• ${t.category}` : ''}</p>
                     </div>
-                    {t.level !== 'all' && <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                      t.level === 'Elite' ? 'bg-red-100 text-red-800' :
-                      t.level === 'Competition' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-green-100 text-green-800'
-                    }`}>{t.level}</span>}
+                    <div className="flex flex-col items-end gap-2">
+                      {t.level !== 'all' && <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                        t.level === 'Elite' ? 'bg-red-100 text-red-800' :
+                        t.level === 'Competition' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-green-100 text-green-800'
+                      }`}>{t.level}</span>}
+                      <button
+                        type="button"
+                        className={`text-xs font-semibold ${isOpportunitySaved(t.id) ? 'text-green-700' : 'text-orange-600'} underline-offset-2 hover:underline`}
+                        onClick={(event) => handleToggleSaveOpportunity(t, event)}
+                      >
+                        {isOpportunitySaved(t.id) ? 'Enregistré' : 'Sauvegarder'}
+                      </button>
+                    </div>
                   </div>
                   {t.date !== '2025-01-01' && (
                     <p className="mt-4 text-sm text-slate-600">
@@ -365,6 +461,43 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
             <CardBase className="h-96 w-full flex items-center justify-center">
               <img src="https://placehold.co/1200x400/e2e8f0/64748b?text=Vue+Carte+Bientôt+Disponible" alt={T.alt_map_placeholder} className="w-full h-full object-cover rounded-xl"/>
             </CardBase>
+          </div>
+        )}
+        {userData.savedOpportunities.length > 0 && (
+          <div className="mt-10">
+            <h3 className="text-lg font-semibold text-slate-800">{T.saved_opportunities_title}</h3>
+            <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
+              {userData.savedOpportunities.map((item) => (
+                <CardBase key={item.id} className="p-4 flex items-center justify-between">
+                  <div>
+                    <p className="font-semibold text-slate-800">{item.name}</p>
+                    <p className="text-xs text-slate-500">{item.type} • {item.country}</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <button onClick={() => navigate(`/opportunity/${item.id}`)} className="text-sm text-orange-600 hover:underline">{T.view_list}</button>
+                    <button onClick={() => handleToggleSaveOpportunity(item)} className="text-xs text-red-600 hover:underline">Supprimer</button>
+                  </div>
+                </CardBase>
+              ))}
+            </div>
+          </div>
+        )}
+        {userData.recentlyViewed.length > 0 && (
+          <div className="mt-10">
+            <h3 className="text-lg font-semibold text-slate-800">{T.recently_viewed_title}</h3>
+            <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-4">
+              {userData.recentlyViewed.map((item) => (
+                <CardBase key={item.id} className="p-4 flex items-center justify-between">
+                  <div>
+                    <p className="font-semibold text-slate-800">{item.name}</p>
+                    <p className="text-xs text-slate-500">{item.type} • {item.country} • {item.sport}</p>
+                  </div>
+                  <button onClick={() => navigate(`/opportunity/${item.id}`)} className="text-sm text-orange-600 hover:underline">
+                    {T.view_list}
+                  </button>
+                </CardBase>
+              ))}
+            </div>
           </div>
         )}
       </div>

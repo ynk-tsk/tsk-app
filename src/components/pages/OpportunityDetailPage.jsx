@@ -4,10 +4,11 @@ import CardBase from "../ui/CardBase";
 import { PrimaryBtn, SecondaryBtn } from "../ui/Buttons";
 import { fetchOpportunityById } from "../../services/mockApi";
 import { locales } from "../../i18n/i18n";
+import { useUserData } from "../../hooks/useUserData";
 
 const skeletonBlock = "bg-slate-200 animate-pulse rounded";
 
-const OpportunityDetailPage = ({ T, lang, user }) => {
+const OpportunityDetailPage = ({ T, lang }) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -16,6 +17,7 @@ const OpportunityDetailPage = ({ T, lang, user }) => {
   const [error, setError] = useState(null);
   const [actionMessage, setActionMessage] = useState("");
   const [statusMessage, setStatusMessage] = useState("");
+  const { user, toggleSavedOpportunity, isOpportunitySaved, recordRecentlyViewed, continuityPrompt, setContinuityPrompt, data } = useUserData();
 
   const formatter = useMemo(() => locales[lang] || locales.fr, [lang]);
 
@@ -50,6 +52,12 @@ const OpportunityDetailPage = ({ T, lang, user }) => {
     }
   }, [location.state, opportunity, user]);
 
+  useEffect(() => {
+    if (opportunity) {
+      recordRecentlyViewed(opportunity);
+    }
+  }, [opportunity, recordRecentlyViewed]);
+
   const handleBack = () => {
     if (location.state?.from) {
       navigate(location.state.from, {
@@ -66,16 +74,16 @@ const OpportunityDetailPage = ({ T, lang, user }) => {
     navigate(-1);
   };
 
-  const handleProtectedAction = (intent) => {
+  const handleAction = (intent) => {
     if (!opportunity) return;
-    if (!user) {
-      navigate("/auth", {
-        replace: false,
-        state: { redirectTo: `/opportunity/${opportunity.id}`, intent },
-      });
+    if (intent === "sauvegarder") {
+      const saved = toggleSavedOpportunity(opportunity);
+      setActionMessage(saved ? "Opportunité sauvegardée sur cet appareil." : "Opportunité retirée de vos favoris.");
+      if (!user) setContinuityPrompt("saved");
       return;
     }
-    setActionMessage(`Action ${intent} confirmée sur ${opportunity.name}.`);
+    setActionMessage(`Action ${intent} notée pour ${opportunity.name}. Vous pourrez la finaliser plus tard.`);
+    if (!user) setContinuityPrompt("continuity");
   };
 
   const importantMessage = actionMessage || error || statusMessage;
@@ -133,25 +141,27 @@ const OpportunityDetailPage = ({ T, lang, user }) => {
 
               <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
                 <PrimaryBtn
-                  onClick={() => handleProtectedAction("contact")}
+                  onClick={() => handleAction("contact")}
                   className="min-h-[44px] text-center"
                   disabled={!opportunity}
                 >
                   Contacter
                 </PrimaryBtn>
                 <SecondaryBtn
-                  onClick={() => handleProtectedAction("postuler")}
+                  onClick={() => handleAction("postuler")}
                   className="min-h-[44px] text-center"
                   disabled={!opportunity}
                 >
                   Postuler
                 </SecondaryBtn>
                 <button
-                  onClick={() => handleProtectedAction("sauvegarder")}
-                  className="min-h-[44px] rounded-lg border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 shadow-md hover:bg-slate-50 disabled:opacity-50"
+                  onClick={() => handleAction("sauvegarder")}
+                  className={`min-h-[44px] rounded-lg border px-5 py-3 text-sm font-semibold shadow-md hover:bg-slate-50 disabled:opacity-50 ${
+                    isOpportunitySaved(Number(id)) ? 'border-green-300 text-green-800 bg-green-50' : 'border-slate-200 text-slate-700'
+                  }`}
                   disabled={!opportunity}
                 >
-                  Sauvegarder
+                  {isOpportunitySaved(Number(id)) ? 'Enregistré' : 'Sauvegarder'}
                 </button>
               </div>
 
@@ -163,6 +173,18 @@ const OpportunityDetailPage = ({ T, lang, user }) => {
                 >
                   {actionMessage}
                 </div>
+              )}
+              {!user && (data.savedOpportunities.length > 0 || continuityPrompt) && (
+                <CardBase className="mt-6 border border-orange-200 bg-orange-50">
+                  <p className="font-semibold text-orange-800">{T.continuity_cta_title}</p>
+                  <p className="text-sm text-orange-700 mt-1">{`Créez un compte pour conserver ${data.savedOpportunities.length} opportunités et ${data.savedSearches.length} recherches sur tous vos appareils.`}</p>
+                  <PrimaryBtn
+                    className="mt-3"
+                    onClick={() => navigate('/auth', { state: { redirectTo: location.pathname, intent: 'continuity' } })}
+                  >
+                    {T.cta_keep_everywhere}
+                  </PrimaryBtn>
+                </CardBase>
               )}
             </>
           )}
