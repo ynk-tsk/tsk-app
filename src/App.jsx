@@ -12,14 +12,15 @@ import AuthPage from "./components/pages/AuthPage";
 import DashboardPage from "./components/pages/DashboardPage";
 import ProposeOpportunityPage from "./components/pages/ProposeOpportunityPage";
 import OpportunityDetailPage from "./components/pages/OpportunityDetailPage";
+import { useUserData } from "./hooks/useUserData";
 
 export default function App() {
   const { i18n: i18nextInstance } = useTranslation();
   const lang = i18nextInstance.language || 'fr';
   const navigate = useNavigate();
   const location = useLocation();
-  const [user, setUser] = useState(null);
   const [initialSearchFilter, setInitialSearchFilter] = useState(null);
+  const { user, markLastVisit, logout } = useUserData();
   const T = useMemo(() => i18nextInstance.getResourceBundle(lang, 'translation') || {}, [i18nextInstance, lang]);
 
   useEffect(() => {
@@ -28,12 +29,11 @@ export default function App() {
     window.scrollTo(0, 0);
   }, [lang, location.pathname, initialSearchFilter]);
 
+  useEffect(() => {
+    markLastVisit();
+  }, [markLastVisit]);
+
   const handleLanguageChange = (newLang) => { i18n.changeLanguage(newLang); };
-  const handleLogin = (userData, redirectPath, state) => {
-    setUser(userData);
-    navigate(redirectPath || '/dashboard', state);
-  };
-  const handleLogout = () => { setUser(null); navigate('/'); };
   const handleFilterSelect = (filter) => {
     setInitialSearchFilter(filter);
     if (location.pathname !== '/') navigate('/');
@@ -51,7 +51,7 @@ export default function App() {
         navigateTo={navigateTo}
         currentPath={location.pathname}
         user={user}
-        onLogout={handleLogout}
+        onLogout={() => { logout(); navigate('/'); }}
         onFilterSelect={handleFilterSelect}
       />
       <main>
@@ -59,12 +59,12 @@ export default function App() {
           <Route path="/" element={<HomePage T={T} initialFilter={initialSearchFilter} clearInitialFilter={clearInitialFilter} lang={lang} />} />
           <Route path="/about-us" element={<QuiSommesNousPage T={T} />} />
           <Route path="/contact" element={<ContactPage T={T} />} />
-          <Route path="/auth" element={<AuthPage T={T} onLogin={handleLogin} navigateTo={navigateTo} />} />
+          <Route path="/auth" element={<AuthPage T={T} navigateTo={navigateTo} />} />
           <Route path="/dashboard" element={user ? <DashboardPage T={T} user={user} navigateTo={navigateTo} /> : <Navigate to="/" replace />} />
           <Route path="/propose" element={user ? <ProposeOpportunityPage T={T} /> : <Navigate to="/" replace />} />
           <Route
             path="/opportunity/:id"
-            element={<OpportunityDetailPage T={T} lang={lang} user={user} />}
+            element={<OpportunityDetailPage T={T} lang={lang} />}
           />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
