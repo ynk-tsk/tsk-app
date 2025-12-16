@@ -1,5 +1,5 @@
 import React from "react";
-import { PrimaryBtn, SecondaryBtn } from "../ui/Buttons";
+import { PrimaryBtn } from "../ui/Buttons";
 
 const Hero = ({ T }) => (
   <section className="relative text-center py-20 md:py-32 overflow-hidden">
@@ -19,7 +19,6 @@ const Hero = ({ T }) => (
       <p className="mt-6 text-lg text-slate-200 font-medium">{T.h1_sub}</p>
       <div className="mt-8 flex flex-wrap gap-4 justify-center">
         <PrimaryBtn onClick={() => { document.getElementById('search')?.scrollIntoView({ behavior: 'smooth' }); }}>{T.cta_primary}</PrimaryBtn>
-        <SecondaryBtn onClick={() => { document.getElementById('organizers')?.scrollIntoView({ behavior: 'smooth' }); }}>{T.cta_secondary}</SecondaryBtn>
       </div>
     </div>
   </section>

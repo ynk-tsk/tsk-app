@@ -32,7 +32,7 @@ npm run build
 - `src/i18n/`: configuration i18n et ressources de traduction.
 - `src/components/`: pages, layout et composants d'accueil.
 - `src/services/mockApi.js`: couche de services async simulée pour les données.
-- `src/shims/`: remplacements locaux pour `react-router-dom` et `i18next`/`react-i18next` utilisables hors ligne.
+- `public/_redirects`: redirection SPA Netlify vers `index.html`.
 - `netlify.toml`: configuration de build Netlify (`npm run build`, publish `dist`, Node 18, `NPM_FLAGS=--no-package-lock`).
 
 ## Déploiement Netlify
