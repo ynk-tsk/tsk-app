@@ -5,6 +5,7 @@ import { PrimaryBtn, SecondaryBtn } from "../ui/Buttons";
 import { fetchOpportunityById } from "../../services/mockApi";
 import { locales } from "../../i18n/i18n";
 import { useUserData } from "../../hooks/useUserData";
+import { trackOpportunityClick } from "../../services/analytics";
 
 const skeletonBlock = "bg-slate-200 animate-pulse rounded";
 
@@ -55,6 +56,7 @@ const OpportunityDetailPage = ({ T, lang }) => {
   useEffect(() => {
     if (opportunity) {
       recordRecentlyViewed(opportunity);
+      trackOpportunityClick();
     }
   }, [opportunity, recordRecentlyViewed]);
 

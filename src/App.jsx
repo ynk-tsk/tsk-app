@@ -12,7 +12,9 @@ import AuthPage from "./components/pages/AuthPage";
 import DashboardPage from "./components/pages/DashboardPage";
 import ProposeOpportunityPage from "./components/pages/ProposeOpportunityPage";
 import OpportunityDetailPage from "./components/pages/OpportunityDetailPage";
+import DebugPage from "./components/pages/DebugPage";
 import { useUserData } from "./hooks/useUserData";
+import { startSession } from "./services/analytics";
 
 export default function App() {
   const { i18n: i18nextInstance } = useTranslation();
@@ -31,6 +33,7 @@ export default function App() {
 
   useEffect(() => {
     markLastVisit();
+    startSession();
   }, [markLastVisit]);
 
   const handleLanguageChange = (newLang) => { i18n.changeLanguage(newLang); };
@@ -66,6 +69,7 @@ export default function App() {
             path="/opportunity/:id"
             element={<OpportunityDetailPage T={T} lang={lang} />}
           />
+          <Route path="/debug" element={<DebugPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

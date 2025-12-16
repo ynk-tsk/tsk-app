@@ -1,10 +1,17 @@
-import React, { useEffect, useMemo, useState, useCallback } from "react";
+import React, { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import CardBase from "../ui/CardBase";
 import { locales } from "../../i18n/i18n";
 import { fetchOpportunities } from "../../services/mockApi";
 import { useUserData } from "../../hooks/useUserData";
 import { PrimaryBtn } from "../ui/Buttons";
+import {
+  trackSearchInteraction,
+  trackSaveSearch,
+  trackAlertsClick,
+  trackZeroResultEvent,
+  trackOpportunityClick,
+} from "../../services/analytics";
 
 const defaultEssentialFilters = {
   type: "all",
@@ -254,6 +261,7 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
   const [showAlertsModal, setShowAlertsModal] = useState(false);
   const [alertsForm, setAlertsForm] = useState({ email: "", frequency: "weekly" });
   const [alertsConfirmation, setAlertsConfirmation] = useState("");
+  const zeroResultSignatureRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
   const {
@@ -359,6 +367,7 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
     const { name, value } = event.target;
     setHasInteracted(true);
     setLastChangedKey(name);
+    trackSearchInteraction();
     if (scope === "essential") {
       setEssentialFilters((prev) => {
         const next = { ...prev, [name]: value };
@@ -404,6 +413,19 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
   }, [mergedFilters, allData, navigate, location.pathname, location.state]);
 
   useEffect(() => {
+    if (!hasInteracted || loading) return;
+    if (opportunities.length === 0) {
+      const signature = JSON.stringify(mergedFilters);
+      if (zeroResultSignatureRef.current !== signature) {
+        trackZeroResultEvent();
+        zeroResultSignatureRef.current = signature;
+      }
+    } else if (zeroResultSignatureRef.current) {
+      zeroResultSignatureRef.current = null;
+    }
+  }, [hasInteracted, loading, opportunities.length, mergedFilters]);
+
+  useEffect(() => {
     if (!loading && location.state?.scrollPosition >= 0) {
       window.scrollTo(0, location.state.scrollPosition);
     }
@@ -434,6 +456,7 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
 
   const handleOpportunityClick = (opportunity) => {
     setStatusMessage(`Ouverture de ${opportunity.name}`);
+    trackOpportunityClick();
     navigate(`/opportunity/${opportunity.id}`, {
       state: {
         from: `${location.pathname}${location.search}`,
@@ -451,6 +474,7 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
     if (mergedFilters.country !== "all") labelParts.push(mergedFilters.country);
     if (mergedFilters.type !== "all") labelParts.push(mergedFilters.type);
     const label = labelParts.join(" · ") || T.save_search_action;
+    trackSaveSearch();
     saveSearch(mergedFilters, { label });
     setStatusMessage("Recherche sauvegardée localement");
   };
@@ -558,6 +582,7 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
   const shouldShowPostSearchCtas = hasInteracted && (isDirty || opportunities.length > 0);
 
   const handleOpenAlerts = () => {
+    trackAlertsClick();
     setShowAlertsModal(true);
     setAlertsConfirmation("");
   };
@@ -902,7 +927,10 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
                   </div>
                   <div className="flex gap-2">
                     <button
-                      onClick={() => navigate(`/opportunity/${item.id}`)}
+                      onClick={() => {
+                        trackOpportunityClick();
+                        navigate(`/opportunity/${item.id}`);
+                      }}
                       className="text-sm text-orange-600 hover:underline"
                     >
                       {T.view_list}
@@ -933,7 +961,10 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
                     </p>
                   </div>
                   <button
-                    onClick={() => navigate(`/opportunity/${item.id}`)}
+                    onClick={() => {
+                      trackOpportunityClick();
+                      navigate(`/opportunity/${item.id}`);
+                    }}
                     className="text-sm text-orange-600 hover:underline"
                   >
                     {T.view_list}
