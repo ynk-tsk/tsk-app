@@ -284,8 +284,9 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
     setEssentialFilters(defaultEssentialFilters);
     setAdvancedFilters(defaultAdvancedFilters);
     setIsDirty(false);
-    setHasInteracted(true);
+    setHasInteracted(false);
     setLastChangedKey(null);
+    setIsAdvancedOpen(false);
   }, []);
 
   useEffect(() => {
