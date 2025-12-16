@@ -7,6 +7,7 @@ const Footer = ({ T }) => (
       <div className="flex items-center gap-4">
         <a href="#" className="hover:text-slate-800">Mentions légales</a>
         <a href="#" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-slate-800">Haut de page</a>
+        <a href="/debug" className="hover:text-slate-800">Debug</a>
       </div>
     </div>
   </footer>
