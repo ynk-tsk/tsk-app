@@ -14,7 +14,7 @@ import ProposeOpportunityPage from "./components/pages/ProposeOpportunityPage";
 import OpportunityDetailPage from "./components/pages/OpportunityDetailPage";
 import DebugPage from "./components/pages/DebugPage";
 import { useUserData } from "./hooks/useUserData";
-import { startSession } from "./services/analytics";
+import { startSession } from "./services/telemetryService";
 
 export default function App() {
   const { i18n: i18nextInstance } = useTranslation();

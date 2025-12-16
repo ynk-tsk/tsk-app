@@ -115,6 +115,9 @@ const Header = ({ T, lang, onLanguageChange, navigateTo, currentPath, user, onLo
                 {moreDropdown && (
                   <div id="menu-more" role="menu" className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-50">
                     <div className="py-1">
+                      <DropdownLink onClick={() => handleScrollTo('my-stuff')}>
+                        {T.nav_my_items || 'Mes éléments'}
+                      </DropdownLink>
                       <DropdownLink onClick={() => handleScrollTo('saved-opportunities')}>
                         {T.nav_saved_opportunities || 'Opportunités sauvegardées'}
                       </DropdownLink>
@@ -198,6 +201,9 @@ const Header = ({ T, lang, onLanguageChange, navigateTo, currentPath, user, onLo
             </div>
             {moreDropdown && (
               <div className="rounded-md border border-slate-200">
+                <DropdownLink onClick={() => handleScrollTo('my-stuff')}>
+                  {T.nav_my_items || 'Mes éléments'}
+                </DropdownLink>
                 <DropdownLink onClick={() => handleScrollTo('saved-opportunities')}>
                   {T.nav_saved_opportunities || 'Opportunités sauvegardées'}
                 </DropdownLink>
