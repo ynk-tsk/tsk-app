@@ -152,7 +152,7 @@ const SaveSearchCTA = ({ visible, onSave }) => {
     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between bg-slate-50 border border-slate-200 rounded-lg p-4" role="region" aria-label="Sauvegarder la recherche">
       <div>
         <p className="text-sm font-semibold text-slate-800">Sauvegardez cette recherche</p>
-        <p className="text-xs text-slate-500">Retrouvez vos filtres la prochaine fois sur cet appareil.</p>
+        <p className="text-xs text-slate-500">Save this search to reuse it later.</p>
       </div>
       <PrimaryBtn type="button" onClick={onSave}>
         Enregistrer
@@ -167,7 +167,7 @@ const GetAlertsCTA = ({ visible, onOpen }) => {
     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between bg-slate-50 border border-slate-200 rounded-lg p-4" role="region" aria-label="Activer les alertes">
       <div>
         <p className="text-sm font-semibold text-slate-800">Activer les alertes</p>
-        <p className="text-xs text-slate-500">Recevez un rappel par email dès qu'une opportunité correspond.</p>
+        <p className="text-xs text-slate-500">Get alerts when new matches appear.</p>
       </div>
       <PrimaryBtn type="button" onClick={onOpen}>
         Activer
@@ -261,6 +261,8 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
   const [showAlertsModal, setShowAlertsModal] = useState(false);
   const [alertsForm, setAlertsForm] = useState({ email: "", frequency: "weekly" });
   const [alertsConfirmation, setAlertsConfirmation] = useState("");
+  const [toast, setToast] = useState("");
+  const toastTimeoutRef = useRef(null);
   const zeroResultSignatureRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
@@ -321,6 +323,10 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
       setHasInteracted(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => () => {
+    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
   }, []);
 
   useEffect(() => {
@@ -469,15 +475,10 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
   };
 
   const handleSaveSearch = () => {
-    const labelParts = [];
-    if (mergedFilters.keyword) labelParts.push(mergedFilters.keyword);
-    if (mergedFilters.sport !== "all") labelParts.push(mergedFilters.sport);
-    if (mergedFilters.country !== "all") labelParts.push(mergedFilters.country);
-    if (mergedFilters.type !== "all") labelParts.push(mergedFilters.type);
-    const label = labelParts.join(" · ") || T.save_search_action;
+    const label = humanReadableLabel();
     trackSaveSearch();
     saveSearch(mergedFilters, { label });
-    setStatusMessage("Recherche sauvegardée localement");
+    showToast("Recherche sauvegardée localement");
   };
 
   const handleApplySavedSearch = (search) => {
@@ -576,11 +577,40 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
       key,
       label: `${key}: ${value}`,
       onRemove: () =>
-        handleFilterChange({ target: { name: key, value: key in defaultEssentialFilters ? defaultEssentialFilters[key] : defaultAdvancedFilters[key] } },
-          key in essentialFilters ? "essential" : "advanced"),
+        handleFilterChange({
+          target: {
+            name: key,
+            value: key in defaultEssentialFilters ? defaultEssentialFilters[key] : defaultAdvancedFilters[key],
+          },
+        },
+        key in essentialFilters ? "essential" : "advanced"),
     }));
 
-  const shouldShowPostSearchCtas = hasInteracted && (isDirty || opportunities.length > 0);
+  const shouldShowPostSearchCtas = hasInteracted && opportunities.length > 0;
+
+  const showToast = (message) => {
+    setToast(message);
+    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+    toastTimeoutRef.current = setTimeout(() => setToast(""), 3000);
+  };
+
+  const humanReadableLabel = () => {
+    const parts = [];
+    if (mergedFilters.keyword) parts.push(`"${mergedFilters.keyword}"`);
+    if (mergedFilters.sport !== "all") parts.push(mergedFilters.sport);
+    if (mergedFilters.country !== "all") parts.push(mergedFilters.country);
+    if (mergedFilters.type !== "all") parts.push(types[mergedFilters.type] || mergedFilters.type);
+    if (mergedFilters.date) {
+      parts.push(
+        new Date(mergedFilters.date).toLocaleDateString(formatter, {
+          month: "short",
+          day: "numeric",
+        })
+      );
+    }
+    if (mergedFilters.level && mergedFilters.level !== "all") parts.push(mergedFilters.level);
+    return (parts.length ? parts.join(" · ") : T.save_search_action).trim();
+  };
 
   const handleOpenAlerts = () => {
     trackAlertsClick();
@@ -589,10 +619,6 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
   };
 
   const handleSaveAlerts = () => {
-    if (!alertsForm.email) {
-      setAlertsConfirmation("Ajoutez un email pour recevoir les alertes.");
-      return;
-    }
     const newSubscription = {
       id: crypto.randomUUID(),
       filters: mergedFilters,
@@ -606,7 +632,11 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
     const nextSubscriptions = [...alertsSubscriptions, newSubscription];
     setAlertsSubscriptions(nextSubscriptions);
     localStorage.setItem("alertsSubscriptions", JSON.stringify(nextSubscriptions));
-    setAlertsConfirmation("Alertes activées pour cette recherche.");
+    setAlertsConfirmation(
+      alertsForm.email
+        ? "Alertes activées pour cette recherche."
+        : "Alertes activées sur cet appareil (email facultatif)."
+    );
     setShowAlertsModal(false);
   };
 
@@ -702,6 +732,12 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
         <div className="sr-only" aria-live="polite">
           {statusMessage || error}
         </div>
+
+        {toast && (
+          <div className="fixed top-6 right-6 z-50" role="status" aria-live="polite">
+            <div className="rounded-md bg-slate-900 text-white px-4 py-2 shadow-lg">{toast}</div>
+          </div>
+        )}
 
         <CardBase className="mt-10 p-6" aria-busy={loading}>
           <div className="flex flex-col gap-6" role="form" aria-label="Filtres de recherche">
@@ -980,13 +1016,13 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
       {showAlertsModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" role="dialog" aria-modal="true">
           <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold text-slate-900 mb-2">Activer les alertes email</h3>
+            <h3 className="text-lg font-semibold text-slate-900 mb-2">Activer les alertes</h3>
             <p className="text-sm text-slate-600 mb-4">
-              Choisissez une fréquence et indiquez un email pour recevoir les nouveautés de cette recherche.
+              Choisissez une fréquence. L'email est facultatif : sans email, l'alerte reste locale à cet appareil.
             </p>
             <div className="space-y-3">
               <div>
-                <label className="block text-sm font-medium text-slate-700">Email</label>
+                <label className="block text-sm font-medium text-slate-700">Email (optionnel)</label>
                 <input
                   type="email"
                   value={alertsForm.email}
