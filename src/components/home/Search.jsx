@@ -263,6 +263,7 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
     removeSavedSearch,
     isOpportunitySaved,
     toggleSavedOpportunity,
+    recordRecentlyViewed,
     user,
   } = useUserData();
 
@@ -451,6 +452,7 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
 
   const handleOpportunityClick = (opportunity) => {
     setStatusMessage(`Ouverture de ${opportunity.name}`);
+    recordRecentlyViewed(opportunity);
     trackOpportunityClick();
     navigate(`/opportunity/${opportunity.id}`, {
       state: {
@@ -527,6 +529,8 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
 
   const hasContinuityPrompt = !user &&
     (userData.savedOpportunities.length > 0 || userData.savedSearches.length > 0);
+  const hasRecentlyViewed = userData.recentlyViewed.length > 0;
+  const hasSavedOpportunities = userData.savedOpportunities.length > 0;
 
   const types = {
     Tournoi: T.type_tournament,
@@ -860,6 +864,33 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
           </div>
         )}
 
+        {hasRecentlyViewed && (
+          <div id="recently-viewed" className="mt-8">
+            <h3 className="text-lg font-semibold text-slate-800">{T.recently_viewed_title}</h3>
+            <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-4">
+              {userData.recentlyViewed.map((item) => (
+                <CardBase key={item.id} className="p-4 flex items-center justify-between">
+                  <div>
+                    <p className="font-semibold text-slate-800">{item.name}</p>
+                    <p className="text-xs text-slate-500">
+                      {item.type} • {item.country} • {item.sport}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      trackOpportunityClick();
+                      navigate(`/opportunity/${item.id}`);
+                    }}
+                    className="text-sm text-orange-600 hover:underline"
+                  >
+                    {T.view_list}
+                  </button>
+                </CardBase>
+              ))}
+            </div>
+          </div>
+        )}
+
         {loading ? (
           <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" aria-live="polite" role="status">
             {[...Array(3)].map((_, idx) => (
@@ -945,9 +976,9 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
           </div>
         )}
 
-        {userData.savedOpportunities.length > 0 && (
-          <div className="mt-10">
-            <h3 className="text-lg font-semibold text-slate-800">{T.saved_opportunities_title}</h3>
+        <div id="saved-opportunities" className="mt-10">
+          <h3 className="text-lg font-semibold text-slate-800">{T.saved_opportunities_title}</h3>
+          {hasSavedOpportunities ? (
             <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
               {userData.savedOpportunities.map((item) => (
                 <CardBase key={item.id} className="p-4 flex items-center justify-between">
@@ -977,35 +1008,12 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
                 </CardBase>
               ))}
             </div>
-          </div>
-        )}
-
-        {userData.recentlyViewed.length > 0 && (
-          <div className="mt-10">
-            <h3 className="text-lg font-semibold text-slate-800">{T.recently_viewed_title}</h3>
-            <div className="mt-3 grid grid-cols-1 md:grid-cols-3 gap-4">
-              {userData.recentlyViewed.map((item) => (
-                <CardBase key={item.id} className="p-4 flex items-center justify-between">
-                  <div>
-                    <p className="font-semibold text-slate-800">{item.name}</p>
-                    <p className="text-xs text-slate-500">
-                      {item.type} • {item.country} • {item.sport}
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => {
-                      trackOpportunityClick();
-                      navigate(`/opportunity/${item.id}`);
-                    }}
-                    className="text-sm text-orange-600 hover:underline"
-                  >
-                    {T.view_list}
-                  </button>
-                </CardBase>
-              ))}
-            </div>
-          </div>
-        )}
+          ) : (
+            <CardBase className="mt-3 p-4 text-sm text-slate-600">
+              {"Aucune opportunité sauvegardée pour le moment. Utilisez le bouton “Sauvegarder” sur une carte pour l'ajouter ici."}
+            </CardBase>
+          )}
+        </div>
       </div>
 
       {showAlertsModal && (

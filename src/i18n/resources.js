@@ -1,6 +1,6 @@
 const resources = {
     fr: {
-      nav_home: 'Accueil', nav_opportunity: 'Trouver une opportunité', nav_more: 'Plus', nav_for_who: 'Pour...', nav_players: 'Les Joueurs', nav_coaches: 'Les Coachs', nav_organizers: 'Les Organisateurs', nav_clubs: 'Les Clubs', nav_contact: 'Contact', nav_about_us: 'Qui sommes-nous ?', nav_tournaments: 'Tournois', nav_camps: 'Camps', nav_academies: 'Académies', nav_travel_teams: 'Travel Teams',
+      nav_home: 'Accueil', nav_opportunity: 'Trouver une opportunité', nav_more: 'Plus', nav_saved_opportunities: 'Opportunités sauvegardées', nav_for_who: 'Pour...', nav_players: 'Les Joueurs', nav_coaches: 'Les Coachs', nav_organizers: 'Les Organisateurs', nav_clubs: 'Les Clubs', nav_contact: 'Contact', nav_about_us: 'Qui sommes-nous ?', nav_tournaments: 'Tournois', nav_camps: 'Camps', nav_academies: 'Académies', nav_travel_teams: 'Travel Teams',
       nav_login: 'Connexion', nav_signup: 'Inscription', nav_dashboard: 'Tableau de Bord', nav_logout: 'Déconnexion',
       h1_top: 'Moteur de recherche d’événements sportifs',
       h1_highlight: '',
@@ -111,7 +111,7 @@ const resources = {
       alt_map_placeholder: 'Vue carte bientôt disponible'
     },
     en: {
-      nav_home: 'Home', nav_opportunity: 'Find Opportunity', nav_more: 'More', nav_for_who: 'For...', nav_players: 'Players', nav_coaches: 'Coaches', nav_organizers: 'Organizers', nav_clubs: 'Clubs', nav_contact: 'Contact', nav_about_us: 'About Us', nav_tournaments: 'Tournaments', nav_camps: 'Camps', nav_academies: 'Academies', nav_travel_teams: 'Travel Teams',
+      nav_home: 'Home', nav_opportunity: 'Find Opportunity', nav_more: 'More', nav_saved_opportunities: 'Saved opportunities', nav_for_who: 'For...', nav_players: 'Players', nav_coaches: 'Coaches', nav_organizers: 'Organizers', nav_clubs: 'Clubs', nav_contact: 'Contact', nav_about_us: 'About Us', nav_tournaments: 'Tournaments', nav_camps: 'Camps', nav_academies: 'Academies', nav_travel_teams: 'Travel Teams',
       nav_login: 'Login', nav_signup: 'Sign Up', nav_dashboard: 'Dashboard', nav_logout: 'Logout',
       h1_top: 'Sports Event Search Engine',
       h1_highlight: '',

@@ -112,14 +112,17 @@ const Header = ({ T, lang, onLanguageChange, navigateTo, currentPath, user, onLo
               {T.nav_more}
               <svg className={`w-4 h-4 transition-transform ${moreDropdown ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
             </button>
-            {moreDropdown && (
-              <div id="menu-more" role="menu" className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-50">
-                <div className="py-1">
-                  <DropdownLink onClick={() => handleScrollTo('players')}>{T.nav_players}</DropdownLink>
-                  <DropdownLink onClick={() => handleScrollTo('coaches')}>{T.nav_coaches}</DropdownLink>
-                  <DropdownLink onClick={() => handleScrollTo('clubs')}>{T.nav_clubs}</DropdownLink>
-                  <DropdownLink onClick={() => handleScrollTo('organizers')}>{T.nav_organizers}</DropdownLink>
-                  <DropdownLink onClick={() => { navigateTo('/about-us'); closeAll(); }}>{T.nav_about_us}</DropdownLink>
+                {moreDropdown && (
+                  <div id="menu-more" role="menu" className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 z-50">
+                    <div className="py-1">
+                      <DropdownLink onClick={() => handleScrollTo('saved-opportunities')}>
+                        {T.nav_saved_opportunities || 'Opportunités sauvegardées'}
+                      </DropdownLink>
+                      <DropdownLink onClick={() => handleScrollTo('players')}>{T.nav_players}</DropdownLink>
+                      <DropdownLink onClick={() => handleScrollTo('coaches')}>{T.nav_coaches}</DropdownLink>
+                      <DropdownLink onClick={() => handleScrollTo('clubs')}>{T.nav_clubs}</DropdownLink>
+                      <DropdownLink onClick={() => handleScrollTo('organizers')}>{T.nav_organizers}</DropdownLink>
+                      <DropdownLink onClick={() => { navigateTo('/about-us'); closeAll(); }}>{T.nav_about_us}</DropdownLink>
                   <DropdownLink onClick={() => { navigateTo('/contact'); closeAll(); }}>{T.nav_contact}</DropdownLink>
                 </div>
               </div>
@@ -195,6 +198,9 @@ const Header = ({ T, lang, onLanguageChange, navigateTo, currentPath, user, onLo
             </div>
             {moreDropdown && (
               <div className="rounded-md border border-slate-200">
+                <DropdownLink onClick={() => handleScrollTo('saved-opportunities')}>
+                  {T.nav_saved_opportunities || 'Opportunités sauvegardées'}
+                </DropdownLink>
                 <DropdownLink onClick={() => handleScrollTo('players')}>{T.nav_players}</DropdownLink>
                 <DropdownLink onClick={() => handleScrollTo('coaches')}>{T.nav_coaches}</DropdownLink>
                 <DropdownLink onClick={() => handleScrollTo('clubs')}>{T.nav_clubs}</DropdownLink>

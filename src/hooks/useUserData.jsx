@@ -82,7 +82,7 @@ export const UserDataProvider = ({ children }) => {
         country: opportunity.country,
         viewedAt: Date.now(),
       };
-      return { ...prev, recentlyViewed: [entry, ...withoutCurrent].slice(0, 10) };
+      return { ...prev, recentlyViewed: [entry, ...withoutCurrent].slice(0, 20) };
     });
   }, [runUpdate]);
 
