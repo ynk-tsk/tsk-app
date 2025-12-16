@@ -263,6 +263,183 @@ const Search = () => {
   }));
 
   const showEmptyState = hasInteracted && !loading && results.length === 0;
+
+  const mergedFilters = useMemo(
+    () => ({ ...essentialFilters, ...advancedFilters }),
+    [essentialFilters, advancedFilters]
+  );
+
+  const activeFilters = useMemo(() => {
+    const entries = [];
+    Object.entries(mergedFilters).forEach(([key, value]) => {
+      const defaultValue = { ...defaultEssentialFilters, ...defaultAdvancedFilters }[key];
+      if (value && value !== "" && value !== defaultValue) {
+        entries.push({ key, label: `${key}: ${value}` });
+      }
+    });
+    return entries;
+  }, [mergedFilters]);
+
+  const isDebug = useMemo(() => location.search.includes("debug=1"), [location.search]);
+
+  useEffect(() => {
+    setLoading(true);
+    fetchOpportunities()
+      .then((data) => setOpportunities(data))
+      .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    const dirty =
+      essentialFilters.keyword !== defaultEssentialFilters.keyword ||
+      essentialFilters.type !== defaultEssentialFilters.type ||
+      essentialFilters.sport !== defaultEssentialFilters.sport ||
+      essentialFilters.country !== defaultEssentialFilters.country ||
+      essentialFilters.date !== defaultEssentialFilters.date ||
+      Object.entries(advancedFilters).some(([key, value]) => value !== defaultAdvancedFilters[key]);
+    setIsDirty(dirty);
+  }, [essentialFilters, advancedFilters]);
+
+  const results = useMemo(() => {
+    return opportunities.filter((opportunity) => {
+      if (essentialFilters.type !== "all" && opportunity.type !== essentialFilters.type) return false;
+      if (essentialFilters.sport !== "all" && opportunity.sport !== essentialFilters.sport) return false;
+      if (essentialFilters.country !== "all" && opportunity.country !== essentialFilters.country) return false;
+      if (essentialFilters.keyword) {
+        const query = essentialFilters.keyword.toLowerCase();
+        if (!opportunity.name.toLowerCase().includes(query)) return false;
+      }
+      if (essentialFilters.date) {
+        if (new Date(opportunity.date) < new Date(essentialFilters.date)) return false;
+      }
+      if (advancedFilters.dateEnd) {
+        if (new Date(opportunity.date) > new Date(advancedFilters.dateEnd)) return false;
+      }
+      if (advancedFilters.level !== "all" && opportunity.level !== advancedFilters.level) return false;
+      if (advancedFilters.gender !== "all" && opportunity.gender !== advancedFilters.gender) return false;
+      if (advancedFilters.category !== "all" && opportunity.category !== advancedFilters.category) return false;
+      if (advancedFilters.ageGroup !== "all" && opportunity.ageGroup !== advancedFilters.ageGroup) return false;
+      if (advancedFilters.continent !== "all" && opportunity.continent !== advancedFilters.continent) return false;
+      return true;
+    });
+  }, [opportunities, essentialFilters, advancedFilters]);
+
+  useEffect(() => {
+    if (hasInteracted && results.length === 0) {
+      incrementCounter("zero_results_seen");
+      setDebugSnapshot(getTelemetrySnapshot());
+    }
+  }, [hasInteracted, results]);
+
+  const handleFilterChange = (event, scope = "essential") => {
+    const { name, value } = event.target;
+    if (!hasInteracted) {
+      setHasInteracted(true);
+      incrementCounter("search_sessions_started");
+    }
+    if (scope === "essential") {
+      setEssentialFilters((prev) => ({ ...prev, [name]: value }));
+    } else {
+      setAdvancedFilters((prev) => ({ ...prev, [name]: value }));
+    }
+    incrementCounter("filters_changed");
+    setDebugSnapshot(getTelemetrySnapshot());
+  };
+
+  const resetFilters = useCallback(() => {
+    setEssentialFilters(defaultEssentialFilters);
+    setAdvancedFilters(defaultAdvancedFilters);
+    setIsAdvancedOpen(false);
+    setHasInteracted(false);
+    setIsDirty(false);
+  }, []);
+
+  const handleRemoveFilter = (key) => {
+    if (defaultEssentialFilters[key] !== undefined) {
+      setEssentialFilters((prev) => ({ ...prev, [key]: defaultEssentialFilters[key] }));
+    }
+    if (defaultAdvancedFilters[key] !== undefined) {
+      setAdvancedFilters((prev) => ({ ...prev, [key]: defaultAdvancedFilters[key] }));
+    }
+  };
+
+  const handleSaveSearch = () => {
+    incrementCounter("save_search_clicked");
+    const label = buildLabelFromFilters(mergedFilters);
+    const saved = createSavedSearch({ name: label, filters: mergedFilters });
+    setSavedSearches(listSavedSearches());
+    setToast("Recherche enregistrée");
+    incrementCounter("saved_search_created");
+    setDebugSnapshot(getTelemetrySnapshot());
+    return saved;
+  };
+
+  const handleToggleSaveOpportunity = (opportunity) => {
+    const next = toggleSavedOpportunity(opportunity);
+    setSavedOpps(next);
+    setToast(next.find((item) => item.id === opportunity.id) ? "Ajouté aux favoris" : "Retiré des favoris");
+    incrementCounter("opportunity_saved");
+    setDebugSnapshot(getTelemetrySnapshot());
+  };
+
+  const handleOpenOpportunity = (opportunity) => {
+    setSelectedOpportunity(opportunity);
+    setRecentlyViewed(addRecentlyViewed(opportunity));
+    incrementCounter("opportunity_viewed");
+    setDebugSnapshot(getTelemetrySnapshot());
+  };
+
+  const handleSaveAlert = () => {
+    const label = buildLabelFromFilters(mergedFilters);
+    createAlert({
+      label,
+      filters: mergedFilters,
+      frequency: alertsForm.frequency,
+      email: alertsForm.email,
+      localOnly: !alertsForm.email,
+    });
+    setAlerts(listAlerts());
+    setShowAlertsModal(false);
+    setToast("Alerte activée");
+    incrementCounter("alert_created");
+    setDebugSnapshot(getTelemetrySnapshot());
+  };
+
+  const handleApplySavedSearch = (item) => {
+    setEssentialFilters({ ...defaultEssentialFilters, ...item.filters });
+    setAdvancedFilters({ ...defaultAdvancedFilters, ...item.filters });
+    setHasInteracted(true);
+    setIsDirty(true);
+    markSavedSearchUsed(item.id);
+    setSavedSearches(listSavedSearches());
+  };
+
+  const handleRenameSearch = (item) => {
+    const name = prompt("Renommer la recherche", item.name);
+    if (name) {
+      updateSavedSearch(item.id, { name });
+      setSavedSearches(listSavedSearches());
+    }
+  };
+
+  const handleDuplicateSearch = (item) => {
+    duplicateSavedSearch(item.id);
+    setSavedSearches(listSavedSearches());
+  };
+
+  const handleDeleteSearch = (item) => {
+    deleteSavedSearch(item.id);
+    setSavedSearches(listSavedSearches());
+  };
+
+  const showCtas = hasInteracted && !loading && results.length > 0;
+
+  const emptyStateActiveFilters = activeFilters.map((filter) => ({
+    ...filter,
+    onRemove: () => handleRemoveFilter(filter.key),
+  }));
+
+  const showEmptyState = hasInteracted && !loading && results.length === 0;
     if (location.state?.view) setView(location.state.view);
     if (location.state?.filters) {
       setEssentialFilters((prev) => ({ ...prev, ...location.state.filters }));
@@ -558,6 +735,15 @@ const Search = () => {
         <div className="text-center">
           <h2 className="text-3xl font-bold text-slate-900">Trouver une opportunité</h2>
           <p className="mt-2 text-slate-600">Une action claire : cherchez, sauvegardez, revenez.</p>
+        </div>
+
+        <Toast message={toast} onClose={() => setToast("")} />
+
+        <CardBase className="p-6" aria-busy={loading}>
+          <div className="flex flex-col gap-6" role="form" aria-label="Filtres de recherche">
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+              <div className="lg:col-span-2">
+                <label className="block text-sm font-medium text-slate-700">Mot-clé</label>
         </div>
 
         <Toast message={toast} onClose={() => setToast("")} />
@@ -1072,6 +1258,37 @@ const Search = () => {
             )}
           </div>
         )}
+
+        {selectedOpportunity && (
+          <OpportunityDetailModal
+            opportunity={selectedOpportunity}
+            onClose={() => setSelectedOpportunity(null)}
+            onSaveToggle={handleToggleSaveOpportunity}
+            isSaved={!!savedOpps.find((item) => item.id === selectedOpportunity.id)}
+          />
+        )}
+
+        {isDebug && (
+          <CardBase className="p-4">
+            <div className="flex items-center justify-between">
+              <h4 className="font-semibold text-slate-800">Debug télémétrie</h4>
+              <button
+                className="text-sm text-orange-600"
+                onClick={() => {
+                  resetTelemetry();
+                  setDebugSnapshot(getTelemetrySnapshot());
+                }}
+              >
+                Reset
+              </button>
+            </div>
+            <div className="mt-2 text-sm text-slate-700">
+              <p>Session: {new Date(debugSnapshot.session?.startedAt || Date.now()).toLocaleString()}</p>
+              <pre className="mt-2 text-xs bg-slate-50 p-2 rounded-md overflow-x-auto">
+                {JSON.stringify(debugSnapshot, null, 2)}
+              </pre>
+            </div>
+          </CardBase>
 
         {selectedOpportunity && (
           <OpportunityDetailModal
