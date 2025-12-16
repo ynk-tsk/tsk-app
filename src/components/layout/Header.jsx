@@ -2,6 +2,16 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import { PrimaryBtn } from "../ui/Buttons";
 import LanguageSwitcher from "./LanguageSwitcher";
 
+const DropdownLink = ({ onClick, children }) => (
+  <button
+    role="menuitem"
+    onClick={onClick}
+    className="block w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-100"
+  >
+    {children}
+  </button>
+);
+
 const Header = ({ T, lang, onLanguageChange, navigateTo, user, onLogout, onFilterSelect }) => {
   const [moreDropdown, setMoreDropdown] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -93,6 +103,9 @@ const Header = ({ T, lang, onLanguageChange, navigateTo, currentPath, user, onLo
             <button
               onClick={() => setMoreDropdown(!moreDropdown)}
               className="flex items-center gap-1 px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:bg-slate-100"
+            <button
+              onClick={() => setMoreDropdown(!moreDropdown)}
+              className="flex items-center gap-1 px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:bg-slate-100"
         <nav className="hidden md:flex items-center gap-2" aria-label="Navigation principale">
           <div className="relative" ref={opportunityRef}>
             <button
@@ -146,6 +159,19 @@ const Header = ({ T, lang, onLanguageChange, navigateTo, currentPath, user, onLo
             )}
           </div>
           <PrimaryBtn onClick={handleFindOpportunity} className="shadow-lg ring-2 ring-orange-200">{T.nav_opportunity}</PrimaryBtn>
+        </nav>
+
+        <div className="flex md:hidden items-center gap-2">
+          <PrimaryBtn onClick={handleFindOpportunity} className="text-sm">
+            {T.nav_opportunity}
+          </PrimaryBtn>
+          <button
+            onClick={() => { setMobileMenuOpen(!mobileMenuOpen); setMoreDropdown(false); }}
+            aria-label="Toggle navigation"
+            className="p-2 rounded-md hover:bg-slate-100 text-slate-700 border border-slate-200"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
         </nav>
 
         <div className="flex md:hidden items-center gap-2">
