@@ -180,7 +180,6 @@ const EmptyStatePanel = ({
   T,
   activeFilters,
   onResetAll,
-  onRemoveLast,
   onExpandDates,
   onRelaxSportType,
 }) => (
@@ -208,13 +207,6 @@ const EmptyStatePanel = ({
         onClick={onResetAll}
       >
         {T.empty_state_reset_all || "Réinitialiser tous les filtres"}
-      </button>
-      <button
-        className="rounded-md border border-slate-200 px-4 py-2 text-sm hover:bg-slate-50"
-        type="button"
-        onClick={onRemoveLast}
-      >
-        {T.empty_state_remove_last || "Retirer le dernier filtre"}
       </button>
       <button
         className="rounded-md border border-slate-200 px-4 py-2 text-sm hover:bg-slate-50"
@@ -256,7 +248,6 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
-  const [lastChangedKey, setLastChangedKey] = useState(null);
   const [alertsSubscriptions, setAlertsSubscriptions] = useState([]);
   const [showAlertsModal, setShowAlertsModal] = useState(false);
   const [alertsForm, setAlertsForm] = useState({ email: "", frequency: "weekly" });
@@ -287,7 +278,6 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
     setAdvancedFilters(defaultAdvancedFilters);
     setIsDirty(false);
     setHasInteracted(false);
-    setLastChangedKey(null);
     setIsAdvancedOpen(false);
   }, []);
 
@@ -307,7 +297,6 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
       setEssentialFilters((prev) => ({ ...prev, type: initialFilter }));
       clearInitialFilter();
       setHasInteracted(true);
-      setLastChangedKey("type");
     }
   }, [initialFilter, clearInitialFilter]);
 
@@ -373,7 +362,6 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
   const handleFilterChange = (event, scope = "essential") => {
     const { name, value } = event.target;
     setHasInteracted(true);
-    setLastChangedKey(name);
     trackSearchInteraction();
     if (scope === "essential") {
       setEssentialFilters((prev) => {
@@ -503,34 +491,30 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
     );
   };
 
-  const handleRemoveLastFilter = () => {
-    if (!lastChangedKey) return;
-    if (lastChangedKey in essentialFilters) {
-      setEssentialFilters((prev) => {
-        const next = { ...prev, [lastChangedKey]: defaultEssentialFilters[lastChangedKey] };
-        recomputeDirtyState(next, advancedFilters);
-        return next;
-      });
-    } else if (lastChangedKey in advancedFilters) {
-      setAdvancedFilters((prev) => {
-        const next = { ...prev, [lastChangedKey]: defaultAdvancedFilters[lastChangedKey] };
-        recomputeDirtyState(essentialFilters, next);
-        return next;
-      });
-    }
-    setHasInteracted(true);
-    setLastChangedKey(null);
-  };
-
   const handleExpandDates = () => {
-    setEssentialFilters((prev) => ({ ...prev, date: "" }));
-    setAdvancedFilters((prev) => ({ ...prev, dateEnd: "" }));
-    recomputeDirtyState({ ...essentialFilters, date: "" }, { ...advancedFilters, dateEnd: "" });
+    trackSearchInteraction();
+    const widenDate = (value, direction) => {
+      if (!value) return "";
+      const date = new Date(value);
+      date.setDate(date.getDate() + direction * 30);
+      return date.toISOString().slice(0, 10);
+    };
+    const nextStart = widenDate(essentialFilters.date, -1);
+    const nextEnd = widenDate(advancedFilters.dateEnd, 1);
+    setEssentialFilters((prev) => ({ ...prev, date: nextStart }));
+    setAdvancedFilters((prev) => ({ ...prev, dateEnd: nextEnd }));
+    recomputeDirtyState(
+      { ...essentialFilters, date: nextStart },
+      { ...advancedFilters, dateEnd: nextEnd }
+    );
+    setHasInteracted(true);
   };
 
   const handleRelaxSportType = () => {
-    setEssentialFilters((prev) => ({ ...prev, sport: "all", type: "all" }));
-    recomputeDirtyState({ ...essentialFilters, sport: "all", type: "all" }, advancedFilters);
+    trackSearchInteraction();
+    setEssentialFilters((prev) => ({ ...prev, sport: "all" }));
+    recomputeDirtyState({ ...essentialFilters, sport: "all" }, advancedFilters);
+    setHasInteracted(true);
   };
 
   const lastVisitLabel = userData.lastVisitTimestamp
@@ -576,17 +560,22 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
     .map(([key, value]) => ({
       key,
       label: `${key}: ${value}`,
-      onRemove: () =>
-        handleFilterChange({
-          target: {
-            name: key,
-            value: key in defaultEssentialFilters ? defaultEssentialFilters[key] : defaultAdvancedFilters[key],
+      onRemove: () => {
+        const isEssential = key in defaultEssentialFilters;
+        handleFilterChange(
+          {
+            target: {
+              name: key,
+              value: isEssential ? defaultEssentialFilters[key] : defaultAdvancedFilters[key],
+            },
           },
-        },
-        key in essentialFilters ? "essential" : "advanced"),
+          isEssential ? "essential" : "advanced"
+        );
+      },
     }));
 
   const shouldShowPostSearchCtas = hasInteracted && opportunities.length > 0;
+  const shouldShowEmptyState = hasInteracted && opportunities.length === 0;
 
   const showToast = (message) => {
     setToast(message);
@@ -893,15 +882,21 @@ const Search = ({ T, initialFilter, clearInitialFilter, lang }) => {
               opportunities.map((opportunity) => (
                 <OpportunityCard key={opportunity.id} opportunity={opportunity} />
               ))
-            ) : (
+            ) : shouldShowEmptyState ? (
               <EmptyStatePanel
                 T={T}
                 activeFilters={activeFilters}
                 onResetAll={resetFilters}
-                onRemoveLast={handleRemoveLastFilter}
                 onExpandDates={handleExpandDates}
                 onRelaxSportType={handleRelaxSportType}
               />
+            ) : (
+              <CardBase className="col-span-full p-6 text-center text-slate-700">
+                <p className="font-semibold">Commencez par ajuster un filtre ou un mot-clé.</p>
+                <p className="text-sm text-slate-500 mt-1">
+                  Les résultats apparaîtront ici après votre première interaction.
+                </p>
+              </CardBase>
             )}
           </div>
         ) : (
